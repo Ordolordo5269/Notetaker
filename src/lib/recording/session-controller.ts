@@ -400,11 +400,15 @@ export class SessionController {
     }
     try {
       const expectedChunks = this.local?.nextChunkSeq ?? 0;
+      // Only sequences that produced audio count: a recorder stopped before its first part
+      // (page closed within seconds) leaves a number with nothing to upload.
+      const expectedSequences = (await localStore.listChunks(this.sessionId)).map((c) => c.seq).sort((a, b) => a - b);
       const res = await api<{ missingChunks: number[] }>(`/api/sessions/${this.sessionId}/status`, {
         body: {
           action: "finalize",
           durationMs: this.timelineMs(),
           expectedChunks,
+          expectedSequences,
           acceptMissing: Boolean(opts.acceptMissing),
         },
       });

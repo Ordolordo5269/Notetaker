@@ -47,7 +47,11 @@ const MARKER_META: Record<MarkerType, { label: string; icon: React.ReactNode; sh
 function transcriptionLabel(
   t: SessionState["transcription"],
   online: boolean,
+  phase: SessionState["phase"],
 ): { text: string; tone: "accent" | "neutral" | "warning" | "danger"; pulse?: boolean } {
+  if (t.status === "off" && (phase === "finalizing" || phase === "finished")) {
+    return { text: "Transcripción cerrada", tone: "neutral" };
+  }
   if (!online) return { text: "Sin conexión: transcripción en espera", tone: "warning" };
   const map: Record<
     TranscriptionStatus,
@@ -115,7 +119,7 @@ export function RecordingScreen({ sessionId }: { sessionId: string }) {
   }
   const s = state;
   const pendingTotal = s.sync.pendingChunks + s.sync.pendingTurns + s.sync.pendingSegments + s.sync.pendingMarkers;
-  const tl = transcriptionLabel(s.transcription, s.online);
+  const tl = transcriptionLabel(s.transcription, s.online, s.phase);
 
   return (
     <div className="flex h-[calc(100dvh-3.5rem)] flex-col lg:h-dvh">

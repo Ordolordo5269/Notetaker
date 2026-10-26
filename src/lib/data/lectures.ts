@@ -396,6 +396,12 @@ export async function getChunk(db: Db, userId: string, sessionId: string, seq: n
 }
 
 /** Sequence numbers in [0, expected) that the server has not received. */
+/** Sequences the client holds that never reached the server. */
+export function missingFrom(present: readonly number[], expected: readonly number[]): number[] {
+  const have = new Set(present);
+  return [...new Set(expected)].filter((seq) => !have.has(seq)).sort((a, b) => a - b);
+}
+
 export function missingSequences(present: readonly number[], expected: number): number[] {
   const have = new Set(present);
   const missing: number[] = [];
