@@ -47,6 +47,9 @@ async function openaiFetch(
   if (init.json !== undefined) headers["Content-Type"] = "application/json";
   if (init.safetyId) headers["OpenAI-Safety-Identifier"] = init.safetyId;
   let res: Response;
+  const startedAt = Date.now();
+  const debug = config.appEnv !== "production";
+  if (debug) console.debug(`[openai] → ${init.method ?? "POST"} ${path}`);
   try {
     res = await fetch(`${config.openaiBaseUrl}${path}`, {
       method: init.method ?? "POST",
@@ -61,6 +64,7 @@ async function openaiFetch(
     }
     throw new OpenAIError(502, `No se pudo contactar con OpenAI: ${(err as Error).message}`, true);
   }
+  if (debug) console.debug(`[openai] ← ${res.status} ${path} in ${Date.now() - startedAt} ms`);
   if (res.ok) return res;
   const retryable = res.status === 429 || res.status >= 500;
   if (retryable && attempt < 2) {
@@ -136,6 +140,60 @@ function usageOf(body: ResponsesBody): OpenAIUsage {
   };
 }
 
+/**
+ * Server-sent events of a streamed Responses call. Streaming is used for
+ * every generation: long drafts keep bytes flowing (intermediaries with idle
+ * timeouts stay happy) and the final event carries status and usage.
+ */
+async function readResponsesStream(res: Response): Promise<ResponsesBody> {
+  if (!res.body) throw new OpenAIError(502, "Respuesta vacía de OpenAI.", true);
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let text = "";
+  let final: ResponsesBody | null = null;
+  const handle = (eventName: string, data: string) => {
+    let payload: Record<string, unknown>;
+    try {
+      payload = JSON.parse(data) as Record<string, unknown>;
+    } catch {
+      return;
+    }
+    const type = (payload.type as string | undefined) ?? eventName;
+    if (type === "response.output_text.delta") {
+      text += (payload.delta as string | undefined) ?? "";
+    } else if (type === "response.completed" || type === "response.incomplete" || type === "response.failed") {
+      final = payload.response as ResponsesBody;
+    } else if (type === "error") {
+      const err = payload.error as { message?: string } | undefined;
+      throw new OpenAIError(502, `OpenAI: ${err?.message ?? (payload.message as string) ?? "error en el flujo"}`, true);
+    }
+  };
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let idx: number;
+    while ((idx = buffer.indexOf("\n\n")) !== -1) {
+      const chunk = buffer.slice(0, idx);
+      buffer = buffer.slice(idx + 2);
+      let eventName = "";
+      const dataLines: string[] = [];
+      for (const line of chunk.split("\n")) {
+        if (line.startsWith("event:")) eventName = line.slice(6).trim();
+        else if (line.startsWith("data:")) dataLines.push(line.slice(5).trimStart());
+      }
+      if (dataLines.length) handle(eventName, dataLines.join("\n"));
+    }
+  }
+  if (!final) {
+    throw new OpenAIError(502, "El flujo de OpenAI terminó sin un evento final.", true);
+  }
+  const body = final as ResponsesBody;
+  if (!body.output_text && text) body.output_text = text;
+  return body;
+}
+
 /** Call the Responses API with a strict JSON schema and parse the result. */
 export async function createStructured<T>(
   config: AppConfig,
@@ -154,9 +212,10 @@ export async function createStructured<T>(
       ...(req.maxOutputTokens ? { max_output_tokens: req.maxOutputTokens } : {}),
       text: { format: { type: "json_schema", name: req.schema.name, strict: true, schema: req.schema.schema } },
       store: false,
+      stream: true,
     },
   });
-  const body = (await res.json()) as ResponsesBody;
+  const body = await readResponsesStream(res);
   const usage = usageOf(body);
   if (body.status === "incomplete") {
     throw new OpenAIError(
@@ -165,6 +224,7 @@ export async function createStructured<T>(
       true,
     );
   }
+  if (body.status === "failed") throw new OpenAIError(502, "El modelo no pudo completar la respuesta.", true);
   const { text, refusal } = extractText(body);
   if (refusal) throw new OpenAIError(422, `El modelo rechazó la petición: ${refusal}`, false);
   try {

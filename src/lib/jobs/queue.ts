@@ -1,10 +1,10 @@
 // Creating and dispatching processing jobs.
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import type { Db } from "@/lib/db";
 import { lectureSessions, processingJobs, type JobType } from "@/lib/db/schema";
 import { conflict, notFound } from "@/lib/errors";
 import { newId } from "@/lib/ids";
-import { inlineStepRunner, runJob } from "./runner";
+import { inlineStepRunner, runJob, settleSessionProcessing } from "./runner";
 
 export interface JobView {
   id: string;
@@ -159,5 +159,65 @@ export async function cancelJob(db: Db, userId: string, jobId: string) {
     .update(processingJobs)
     .set({ status: "cancelled", finishedAt: now, updatedAt: now })
     .where(and(eq(processingJobs.id, jobId), eq(processingJobs.userId, userId)));
+  const [row] = await db
+    .select({ sessionId: processingJobs.sessionId })
+    .from(processingJobs)
+    .where(eq(processingJobs.id, jobId))
+    .limit(1);
+  if (row?.sessionId) await settleSessionProcessing(db, row.sessionId);
+  return getJob(db, userId, jobId);
+}
+
+/**
+ * Re-run a failed or cancelled job. Completed steps are cached in job_steps,
+ * so only the remaining work is repeated.
+ */
+export async function retryJob(env: CloudflareEnv, db: Db, userId: string, jobId: string) {
+  const job = await getJob(db, userId, jobId);
+  if (job.status !== "failed" && job.status !== "cancelled") return job;
+  const [row] = await db
+    .select({ sessionId: processingJobs.sessionId, dedupeKey: processingJobs.dedupeKey })
+    .from(processingJobs)
+    .where(eq(processingJobs.id, jobId))
+    .limit(1);
+  if (!row) throw notFound("Trabajo");
+  const [active] = await db
+    .select({ id: processingJobs.id })
+    .from(processingJobs)
+    .where(
+      and(
+        eq(processingJobs.userId, userId),
+        eq(processingJobs.dedupeKey, row.dedupeKey),
+        inArray(processingJobs.status, ["queued", "running"]),
+      ),
+    )
+    .limit(1);
+  if (active) throw conflict("Ya hay un trabajo en curso para esta tarea.");
+  const now = Date.now();
+  await db
+    .update(processingJobs)
+    .set({
+      status: "queued",
+      stage: "queued",
+      error: null,
+      finishedAt: null,
+      attempt: job.status === "failed" ? sql`${processingJobs.attempt} + 1` : processingJobs.attempt,
+      updatedAt: now,
+    })
+    .where(eq(processingJobs.id, jobId));
+  if (row.sessionId) {
+    await db
+      .update(lectureSessions)
+      .set({ processingStatus: "queued", updatedAt: now })
+      .where(and(eq(lectureSessions.id, row.sessionId), eq(lectureSessions.status, "ready")));
+  }
+  if (env.JOBS_WORKFLOW) {
+    // Workflow instance ids are unique per instance: derive a new one per attempt.
+    const instance = await env.JOBS_WORKFLOW.create({ id: `${jobId}-r${now}`, params: { jobId } });
+    await db.update(processingJobs).set({ workflowInstanceId: instance.id }).where(eq(processingJobs.id, jobId));
+  } else {
+    const { waitUntil } = await import("@/lib/cf");
+    await waitUntil(runJob(env, jobId, inlineStepRunner).catch(() => undefined));
+  }
   return getJob(db, userId, jobId);
 }

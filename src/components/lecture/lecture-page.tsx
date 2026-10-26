@@ -43,6 +43,9 @@ import {
 } from "@/lib/transcription/clean";
 import { formatClock, formatDate, formatDuration } from "@/lib/time";
 import { ChunkedPlayer, type ChunkMeta, type PlayerHandle } from "./chunked-player";
+import { ExamTab } from "./exam-tab";
+import { NotesTab } from "./notes-tab";
+import { SummaryTab } from "./summary-tab";
 
 export interface LectureDetail extends LectureCard {
   endedAt: number | null;
@@ -234,7 +237,19 @@ export function LecturePage({ id }: { id: string }) {
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="transcript">Transcripción</TabsTrigger>
+          <TabsTrigger value="notes">Apuntes</TabsTrigger>
+          <TabsTrigger value="summary">Resumen</TabsTrigger>
+          <TabsTrigger value="exam">Examen</TabsTrigger>
         </TabsList>
+        <TabsContent value="notes" className="pt-5">
+          <NotesTab sessionId={id} lecture={l} onSeek={seek} />
+        </TabsContent>
+        <TabsContent value="summary" className="pt-5">
+          <SummaryTab sessionId={id} onSeek={seek} />
+        </TabsContent>
+        <TabsContent value="exam" className="pt-5">
+          <ExamTab sessionId={id} onSeek={seek} />
+        </TabsContent>
         <TabsContent value="transcript" className="pt-5">
           <TranscriptTab
             segments={segments.data}
