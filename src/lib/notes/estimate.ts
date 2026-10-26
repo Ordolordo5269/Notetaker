@@ -10,6 +10,12 @@ export interface CostEstimate {
   transcriptTokens: number;
 }
 
+/**
+ * Calibrated against real runs (2026-10): an 18-minute class (2 blocks) cost 0.36 $ and an
+ * 88-minute class (11 blocks, 40 sections, 24k words) cost 1.88 $ with the default models.
+ * The outline produces roughly 16 + 2.4 sections per block; each section reads up to ~9k
+ * tokens of transcript plus prompt/digest context and writes ~600 words.
+ */
 export function estimateNotesCost(
   models: ModelConfig,
   transcriptChars: number,
@@ -18,12 +24,22 @@ export function estimateNotesCost(
 ): CostEstimate {
   const t = estimateTokens("x".repeat(transcriptChars));
   const a = estimateTokens("x".repeat(attachmentChars));
-  const sections = Math.max(5, Math.min(18, Math.round(blocks * 1.2) + 4));
-  const extraction = tokenCost(models.fast, t * 1.15 + blocks * 900, 0, blocks * 900);
-  const outline = tokenCost(models.notes, blocks * 1200 + 1500, 0, 2500);
-  const drafts = tokenCost(models.notes, sections * 2200 + t * 1.3 + a * 0.6, 0, sections * 1400 + t * 0.9);
-  const review = tokenCost(models.notes, t * 1.2 + blocks * 900, 0, 2500);
-  const patches = drafts * 0.2;
+  const sections = Math.max(8, Math.round(16 + 2.4 * blocks));
+  const extraction = tokenCost(models.fast, t * 1.15 + blocks * 900, 0, blocks * 1200);
+  const outline = tokenCost(models.notes, blocks * 1600 + 2500, 0, 2500 + blocks * 400);
+  // Short classes feed each section a slice of the whole transcript and write shorter sections;
+  // long classes hit the per-section context cap and write ~600-word sections.
+  const perSectionIn = Math.min(t * 0.8, 11_000) + 3500 + Math.min(a, 3000);
+  const perSectionOut = 1250 * Math.min(1, 0.5 + t / 40_000);
+  // Parent sections are short overviews, so not every section costs a full draft.
+  const drafts = 0.8 * sections * tokenCost(models.notes, perSectionIn, 0, perSectionOut);
+  const review = tokenCost(
+    models.notes,
+    t * 1.3 + blocks * 1200 + sections * perSectionOut * 0.7,
+    0,
+    3000 + blocks * 300,
+  );
+  const patches = drafts * 0.15;
   const breakdown = [
     { label: "Extracción por bloques", usd: extraction },
     { label: "Índice global", usd: outline },

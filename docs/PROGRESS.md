@@ -66,8 +66,27 @@ Documento vivo. Cada fase indica qué se implementó, cómo se verificó y qué 
 
 ### Verificado
 
-- `npm run typecheck`, `npm run lint` (0 errores), `npm test` (40/40), `npm run test:e2e` (grabación, documentos, seguridad) contra `next dev`.
+- `npm run typecheck`, `npm run lint` (0 errores), `npm test` (42/42), `npm run test:e2e` (grabación, documentos, seguridad, accesibilidad) contra `next dev`.
 - **Runtime real de Workers** (`opennextjs-cloudflare build` + `wrangler dev`, workerd con D1, R2 y Workflows locales): alta, siembra de clase, subida y extracción de PDF en el Worker, suites E2E de documentos y seguridad, generación completa de apuntes a través del **Workflow** (20 secciones, 6.949 palabras, diapositivas consumidas, 0,34 $, reanudación tras interrupción) y chat con citas a diapositiva y transcripción.
+
+## Fase 5 — Integración continua, clases largas, accesibilidad y PWA
+
+### Implementado
+
+- **CI en GitHub Actions** (`.github/workflows/ci.yml`): typecheck, lint, unitarias, migraciones D1 locales, E2E sin coste (documentos, seguridad, accesibilidad) y build de producción con OpenNext en cada pull request. La suite de grabación se ejecuta solo si el repositorio tiene el secreto `OPENAI_API_KEY`.
+- **Clases largas**: las llamadas con salida estructurada reintentan automáticamente una respuesta incompleta por `max_output_tokens` con más presupuesto y menos razonamiento; los presupuestos del índice y la revisión crecen con el número de bloques; la extracción por bloques se ejecuta con concurrencia 3; el contador de progreso es monótono con trabajos concurrentes; un trabajo reintentado no se confunde con uno muerto.
+- **Guardia de presupuesto durante el trabajo**: además de la estimación previa, el trabajo se detiene (conservando los pasos hechos) si supera en un 10 % el límite por tarea o si el gasto mensual rebasa el límite.
+- **Estimador recalibrado** con dos ejecuciones reales (18 y 88 minutos) y protegido por una prueba unitaria: nunca por debajo del coste medido y como mucho un 60 % por encima.
+- **Accesibilidad**: cero violaciones de axe (WCAG 2.1 AA + buenas prácticas) en 16 pantallas en modo claro y oscuro, comprobado por una prueba E2E que CI ejecuta.
+- **PWA**: service worker con shell offline y página `/offline`; manifest `standalone`; el editor Tiptap se carga bajo demanda.
+- Fixture sintética de 88 minutos (`npm run fixtures:long`, generada con el modelo rápido) para pruebas de escala.
+
+### Verificado
+
+- Pipeline completo sobre la clase de 88 minutos (396 turnos, 12.900 palabras, bilingüe): 11 bloques, índice de 40 secciones, 24.015 palabras de apuntes, 40/40 secciones con citas al audio, 4 puntos no ubicados señalados, diapositivas consumidas, coste real 1,88 $ (estimación anterior 0,81 $, nueva 1,99 $), 7 minutos de proceso tras el reintento. El primer intento falló en el índice por `max_output_tokens`: ese fallo motivó los cambios anteriores y el reintento reutilizó los 11 pasos de extracción ya guardados.
+- Chat sobre la clase larga: respuesta anclada en los minutos 25:50–28:07 con el aviso de examen literal del profesor.
+- Service worker activo en la vista previa de workerd, página offline servida sin red, manifest válido.
+- Peso de cliente medido en la vista previa de producción: 0,7 MB de JS sin comprimir en panel y ajustes, 0,85 MB en grabación, 1,6 MB en la página de clase antes de diferir el editor.
 
 ## Informe de entrega
 
@@ -83,7 +102,7 @@ Documento vivo. Cada fase indica qué se implementó, cómo se verificó y qué 
 - **Transcripción en directo por WebSocket** (`gpt-live-transcribe`): el entorno donde se construyó el proyecto bloquea los upgrades de WebSocket (405), así que la conexión real desde el navegador no pudo ejecutarse. El cliente sigue la documentación oficial (se verificó la emisión de credenciales temporales con los parámetros exactos) y, si falla, cae sin intervención a la transcripción por turnos, que sí está verificada. Primera prueba manual recomendada: una clase corta mirando el indicador «En directo».
 - **Safari e iOS**: la lógica tiene en cuenta `audio/mp4` y la rotación de 30 s, pero solo se ha probado en Chromium. Comprobar en iPhone el comportamiento con pantalla bloqueada.
 - **Despliegue real en Cloudflare** (cuenta, `database_id`, secretos, plan Paid para Workflows y CPU extendida): no se ha podido ejecutar desde aquí; `docs/DEPLOY.md` detalla los pasos y la verificación previa.
-- **Clase de 90 minutos real**: la lógica de bloques y presupuestos de contexto está dimensionada para ello y se probó con una clase sintética de 18 minutos; el coste estimado de apuntes para 90 min es de ≈ 1–2 $ con los modelos por defecto.
+- **Clase de 90 minutos con audio real**: el pipeline se probó de extremo a extremo con una transcripción sintética de 88 minutos (1,88 $ de apuntes); falta comprobar la grabación continua de 90 minutos con micrófono real (rotación de fragmentos, memoria del navegador, subida en segundo plano).
 
 ### Limitaciones conocidas
 

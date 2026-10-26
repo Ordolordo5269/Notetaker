@@ -19,7 +19,8 @@
     "db:migrate:remote": "wrangler d1 migrations apply studyflow --remote",
     "test:e2e:ai": "E2E_AI=1 playwright test tests/e2e/ai.spec.ts",
     "seed": "node scripts/seed-transcript.mjs",
-    "fixtures": "node scripts/make-fixtures.mjs"
+    "fixtures": "node scripts/make-fixtures.mjs",
+    "fixtures:long": "node scripts/make-long-fixture.mjs"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.20.13",

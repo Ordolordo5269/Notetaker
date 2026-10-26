@@ -10,7 +10,7 @@ import { getDb, type Db } from "@/lib/db";
 import { jobSteps, lectureSessions, processingJobs, type JobType } from "@/lib/db/schema";
 import { readConfig, type AppConfig } from "@/lib/env";
 import { AppError, BudgetExceededError } from "@/lib/errors";
-import { recordUsage, type UsageInput } from "@/lib/cost/usage";
+import { getBudget, monthSpend, recordUsage, type UsageInput } from "@/lib/cost/usage";
 import { OpenAIError } from "@/lib/openai/client";
 import { getJobHandler } from "./handlers";
 
@@ -65,6 +65,9 @@ export async function runJob(env: CloudflareEnv, jobId: string, steps: StepRunne
     .where(eq(processingJobs.id, jobId));
   if (row.sessionId) await setSessionProcessing(db, row.sessionId, "processing");
 
+  const budget = await getBudget(db, row.userId);
+  let jobCost = row.costUsd ?? 0;
+  let usageEvents = 0;
   let lastBeat = Date.now();
   const beat = async () => {
     if (Date.now() - lastBeat < HEARTBEAT_EVERY_MS) return;
@@ -123,8 +126,24 @@ export async function runJob(env: CloudflareEnv, jobId: string, steps: StepRunne
       lastBeat = t;
       await db.update(processingJobs).set({ stage, heartbeatAt: t, updatedAt: t }).where(eq(processingJobs.id, jobId));
     },
-    usage(u) {
-      return recordUsage(db, { ...u, userId: job.userId, jobId, sessionId: job.sessionId });
+    async usage(u) {
+      const cost = await recordUsage(db, { ...u, userId: job.userId, jobId, sessionId: job.sessionId });
+      jobCost += cost;
+      // Hard stop while running: the estimate can be wrong, the student's limits cannot be exceeded.
+      if (budget.perJob !== null && jobCost > budget.perJob * 1.1) {
+        throw steps.nonRetryable(
+          `El trabajo ha alcanzado tu límite por tarea (${budget.perJob.toFixed(2)} USD; gastados ${jobCost.toFixed(2)} USD) y se ha detenido. Los pasos completados se conservan.`,
+        );
+      }
+      if (budget.monthly !== null && ++usageEvents % 5 === 0) {
+        const spent = await monthSpend(db, job.userId);
+        if (spent > budget.monthly) {
+          throw steps.nonRetryable(
+            `Has alcanzado tu límite mensual (${budget.monthly.toFixed(2)} USD) y el trabajo se ha detenido. Puedes ampliarlo en Ajustes y reintentar.`,
+          );
+        }
+      }
+      return cost;
     },
     fail(message) {
       throw steps.nonRetryable(message);

@@ -72,19 +72,20 @@ Documentación detallada: [`docs/DEPLOY.md`](docs/DEPLOY.md). Guía de pruebas: 
 
 ## Scripts
 
-| Comando                                          | Descripción                                                                                  |
-| ------------------------------------------------ | -------------------------------------------------------------------------------------------- |
-| `npm run dev`                                    | Servidor de desarrollo                                                                       |
-| `npm run typecheck`                              | `tsc --noEmit`                                                                               |
-| `npm run lint`                                   | ESLint                                                                                       |
-| `npm test`                                       | Pruebas unitarias (Vitest)                                                                   |
-| `npm run test:e2e`                               | Pruebas end-to-end sin coste de IA (grabación con micrófono simulado, documentos, seguridad) |
-| `npm run test:e2e:ai`                            | Prueba end-to-end de pago con los modelos reales (apuntes y chat)                            |
-| `npm run seed -- --base http://localhost:3000`   | Crea una clase terminada con una transcripción de prueba                                     |
-| `npm run fixtures`                               | Regenera los documentos de prueba (PDF/PPTX/DOCX)                                            |
-| `npm run preview`                                | Build para Workers y vista previa local en workerd                                           |
-| `npm run deploy`                                 | Build y despliegue en Cloudflare                                                             |
-| `npm run db:migrate:local` / `db:migrate:remote` | Aplica las migraciones de D1                                                                 |
+| Comando                                          | Descripción                                                                                    |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| `npm run dev`                                    | Servidor de desarrollo                                                                         |
+| `npm run typecheck`                              | `tsc --noEmit`                                                                                 |
+| `npm run lint`                                   | ESLint                                                                                         |
+| `npm test`                                       | Pruebas unitarias (Vitest)                                                                     |
+| `npm run test:e2e`                               | Pruebas end-to-end sin coste de IA (grabación con micrófono simulado, documentos, seguridad)   |
+| `npm run test:e2e:ai`                            | Prueba end-to-end de pago con los modelos reales (apuntes y chat)                              |
+| `npm run seed -- --base http://localhost:3000`   | Crea una clase terminada con una transcripción de prueba                                       |
+| `npm run fixtures`                               | Regenera los documentos de prueba (PDF/PPTX/DOCX)                                              |
+| `npm run fixtures:long`                          | Genera una transcripción sintética de 90 minutos para pruebas de escala (usa el modelo rápido) |
+| `npm run preview`                                | Build para Workers y vista previa local en workerd                                             |
+| `npm run deploy`                                 | Build y despliegue en Cloudflare                                                               |
+| `npm run db:migrate:local` / `db:migrate:remote` | Aplica las migraciones de D1                                                                   |
 
 ## Privacidad y grabación de clases
 

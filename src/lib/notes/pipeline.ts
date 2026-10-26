@@ -221,6 +221,12 @@ async function notesHandler(ctx: JobContext): Promise<Record<string, unknown>> {
   await ctx.setStage(`${STAGES.topics} (0/${transcript.blocks.length})`);
   const extractions: BlockExtraction[] = new Array(transcript.blocks.length);
   let extracted = 0;
+  // Concurrent workers report progress through one chain so counters never go backwards.
+  let stageChain: Promise<void> = Promise.resolve();
+  const reportStage = (stage: string) => {
+    stageChain = stageChain.then(() => ctx.setStage(stage)).catch(() => undefined);
+    return stageChain;
+  };
   const blockQueue = [...transcript.blocks];
   const extractWorkers = Array.from({ length: Math.min(EXTRACT_CONCURRENCY, blockQueue.length) }, async () => {
     while (blockQueue.length) {
@@ -240,7 +246,7 @@ async function notesHandler(ctx: JobContext): Promise<Record<string, unknown>> {
         return data;
       });
       extracted++;
-      await ctx.setStage(`${STAGES.topics} (${extracted}/${transcript.blocks.length})`);
+      await reportStage(`${STAGES.topics} (${extracted}/${transcript.blocks.length})`);
     }
   });
   await Promise.all(extractWorkers);
@@ -295,7 +301,7 @@ ${extractionDigest(extractions, transcript.blocks)}`,
       );
       drafts.set(section.id, draft);
       done++;
-      await ctx.setStage(`${STAGES.draft} (${done}/${outlineSections.length})`);
+      await reportStage(`${STAGES.draft} (${done}/${outlineSections.length})`);
     }
   });
   await Promise.all(workers);
