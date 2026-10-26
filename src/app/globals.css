@@ -1,0 +1,253 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * StudyFlow design tokens.
+ * Ivory canvas, charcoal text, deep green as the only functional accent.
+ * Contrast (WCAG): text 15.9:1, muted 5.2:1, accent on ivory 7.1:1.
+ */
+:root {
+  --background: #f8f8f5;
+  --surface: #ffffff;
+  --surface-sunken: #f1f2ee;
+  --foreground: #181a19;
+  --muted: #646a66;
+  --subtle: #777c78;
+  --border: #e6e8e3;
+  --border-strong: #d5d8d2;
+  --accent: #315c4a;
+  --accent-hover: #284c3d;
+  --accent-foreground: #ffffff;
+  --accent-soft: #e8f1ea;
+  --accent-soft-foreground: #24473a;
+  --danger: #b4362f;
+  --danger-soft: #fbeceb;
+  --warning: #8a5a0b;
+  --warning-soft: #fbf3e2;
+  --recording: #d23a2e;
+  --focus-ring: #315c4a;
+  --shadow-color: 24 26 25;
+  color-scheme: light;
+}
+
+.dark {
+  --background: #121413;
+  --surface: #1a1d1b;
+  --surface-sunken: #161817;
+  --foreground: #eceeea;
+  --muted: #9aa09b;
+  --subtle: #858b86;
+  --border: #2a2e2b;
+  --border-strong: #363b37;
+  --accent: #8fc4a8;
+  --accent-hover: #a3d1b8;
+  --accent-foreground: #102019;
+  --accent-soft: #1f2b24;
+  --accent-soft-foreground: #b9dcc8;
+  --danger: #f07c72;
+  --danger-soft: #2e1a18;
+  --warning: #e6b45c;
+  --warning-soft: #2b2416;
+  --recording: #ff6b5e;
+  --focus-ring: #8fc4a8;
+  --shadow-color: 0 0 0;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-sunken: var(--surface-sunken);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-foreground: var(--accent-soft-foreground);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-recording: var(--recording);
+  --color-ring: var(--focus-ring);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  --shadow-soft: 0 1px 2px rgb(var(--shadow-color) / 0.04), 0 1px 1px rgb(var(--shadow-color) / 0.03);
+  --shadow-pop: 0 8px 24px -8px rgb(var(--shadow-color) / 0.16), 0 2px 6px -2px rgb(var(--shadow-color) / 0.08);
+  --animate-fade-in: fade-in 160ms ease-out;
+  --animate-slide-up: slide-up 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-pulse-dot: pulse-dot 1.6s ease-in-out infinite;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Long-form reading: notes, summaries, transcript. */
+@layer components {
+  .prose-study {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--foreground);
+    max-width: 72ch;
+  }
+  .prose-study h1 {
+    font-size: 1.75rem;
+    line-height: 1.25;
+    font-weight: 650;
+    letter-spacing: -0.015em;
+    margin: 0 0 1rem;
+  }
+  .prose-study h2 {
+    font-size: 1.3rem;
+    line-height: 1.35;
+    font-weight: 620;
+    letter-spacing: -0.01em;
+    margin: 2.25rem 0 0.75rem;
+  }
+  .prose-study h3 {
+    font-size: 1.08rem;
+    font-weight: 620;
+    margin: 1.6rem 0 0.5rem;
+  }
+  .prose-study h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 1.25rem 0 0.4rem;
+  }
+  .prose-study p {
+    margin: 0 0 0.9rem;
+  }
+  .prose-study ul,
+  .prose-study ol {
+    margin: 0 0 1rem;
+    padding-left: 1.35rem;
+  }
+  .prose-study ul {
+    list-style: disc;
+  }
+  .prose-study ol {
+    list-style: decimal;
+  }
+  .prose-study li {
+    margin: 0.25rem 0;
+  }
+  .prose-study li > p {
+    margin: 0;
+  }
+  .prose-study strong {
+    font-weight: 620;
+  }
+  .prose-study a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+  .prose-study blockquote {
+    border-left: 3px solid var(--border-strong);
+    padding: 0.15rem 0 0.15rem 1rem;
+    margin: 0 0 1rem;
+    color: var(--muted);
+  }
+  .prose-study code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    background: var(--surface-sunken);
+    border-radius: 4px;
+    padding: 0.1em 0.3em;
+  }
+  .prose-study table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 0 1.2rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  .prose-study th,
+  .prose-study td {
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.65rem;
+    text-align: left;
+    vertical-align: top;
+  }
+  .prose-study th {
+    background: var(--surface-sunken);
+    font-weight: 600;
+  }
+  .prose-study hr {
+    border: 0;
+    border-top: 1px solid var(--border);
+    margin: 2rem 0;
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "studyflow",
+  // Custom entry: re-exports the OpenNext fetch handler and adds the
+  // Workflow class used for long-running processing (notes, exams, etc.).
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "studyflow"
+    }
+  ],
+  // Heavy steps (PDF text extraction, long prompts) need more than the
+  // default 30 s of CPU. Requires the Workers Paid plan.
+  "limits": {
+    "cpu_ms": 300000
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "studyflow",
+      // Replace with the id printed by `wrangler d1 create studyflow`.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      // Private bucket: audio chunks and attachments. Never public.
+      "binding": "FILES",
+      "bucket_name": "studyflow-files"
+    }
+  ],
+  "workflows": [
+    {
+      "name": "studyflow-jobs",
+      "binding": "JOBS_WORKFLOW",
+      "class_name": "StudyJobWorkflow"
+    }
+  ],
+  "triggers": {
+    // Daily maintenance: audio retention clean-up and stuck-job recovery.
+    "crons": ["17 3 * * *"]
+  },
+  "vars": {
+    "APP_ENV": "production",
+    "OPENAI_NOTES_MODEL": "gpt-6.1-sol",
+    "OPENAI_FAST_MODEL": "gpt-6-luna",
+    "OPENAI_CHAT_MODEL": "gpt-6.1-sol",
+    "OPENAI_LIVE_TRANSCRIBE_MODEL": "gpt-live-transcribe",
+    "OPENAI_FILE_TRANSCRIBE_MODEL": "gpt-transcribe",
+    "OPENAI_EMBEDDING_MODEL": "text-embedding-3-small"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

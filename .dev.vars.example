@@ -1,0 +1,16 @@
+# Local development secrets for `next dev` / `wrangler dev` (copy to .dev.vars; never commit .dev.vars).
+NEXTJS_ENV=development
+
+# OpenAI project API key. Required for transcription, notes, chat and exports with AI.
+OPENAI_API_KEY=sk-proj-...
+
+# Optional: set to 1 only when an egress proxy injects the OpenAI credential for you
+# (requests are then sent without an Authorization header and OPENAI_API_KEY may be empty).
+# OPENAI_PROXY_AUTH=1
+
+# Optional: alternative OpenAI base URL (regional endpoint). Default: https://api.openai.com/v1
+# OPENAI_BASE_URL=https://api.openai.com/v1
+
+# Who may create an account. Empty = only the first account (instance owner).
+# Accepts exact e-mails, "*@your-university.edu" or "*" for open sign-up (development only).
+ALLOWED_SIGNUP_EMAILS=*
