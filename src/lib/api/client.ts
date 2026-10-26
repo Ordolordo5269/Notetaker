@@ -26,7 +26,14 @@ export async function parseApiError(res: Response): Promise<ApiError> {
   } catch {
     /* non-JSON body */
   }
-  if (res.status === 401 && typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+  // Only our own authentication (code "unauthorized") sends the user to the login page: an
+  // upstream 401 must never navigate away from a page that is recording.
+  if (
+    res.status === 401 &&
+    code === "unauthorized" &&
+    typeof window !== "undefined" &&
+    !window.location.pathname.startsWith("/login")
+  ) {
     // Full navigation on purpose: the session cookie is gone, so client
     // state must be discarded along with the page.
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination

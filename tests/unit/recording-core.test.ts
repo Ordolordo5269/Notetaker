@@ -177,3 +177,15 @@ describe("helpers", () => {
     expect(emailAllowed(["x@y.z"], "x@y.z")).toBe(true);
   });
 });
+
+describe("finalize: sequences the server must have", () => {
+  it("only sequences the client actually holds are expected (a recorder torn down before its first part is not)", async () => {
+    const { missingFrom, missingSequences } = await import("@/lib/data/lectures");
+    // Chunk 0 never produced data; the client holds 1-4 and the server has 1-4.
+    expect(missingFrom([1, 2, 3, 4], [1, 2, 3, 4])).toEqual([]);
+    expect(missingFrom([1, 2, 4], [1, 2, 3, 4])).toEqual([3]);
+    expect(missingFrom([], [2, 2, 0])).toEqual([0, 2]);
+    // Legacy contiguous check still flags the gap.
+    expect(missingSequences([1, 2, 3, 4], 5)).toEqual([0]);
+  });
+});
