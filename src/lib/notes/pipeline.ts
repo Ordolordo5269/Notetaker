@@ -719,3 +719,107 @@ registerJobHandler("summaries", summariesHandler);
 registerJobHandler("exam", examHandler);
 
 export { describeRefs, type TranscriptRef };
+
+// ---------------------------------------------------------------------------
+// Single-section regeneration (from the notes editor)
+// ---------------------------------------------------------------------------
+
+export interface SectionParams {
+  sectionId: string;
+  instructions?: string | null;
+  language?: DocumentLanguage | "auto";
+}
+
+async function sectionHandler(ctx: JobContext): Promise<Record<string, unknown>> {
+  const sessionId = ctx.job.sessionId;
+  if (!sessionId) ctx.fail("El trabajo no tiene clase asociada.");
+  const params = ctx.job.params as unknown as SectionParams;
+  const { config } = ctx;
+
+  await ctx.setStage(STAGES.prepare);
+  const current = await getCurrentContent(ctx.db, ctx.job.userId, sessionId, "notes");
+  if (!current) ctx.fail("No hay apuntes que regenerar.");
+  const target = current.content.sections.find((s) => s.id === params.sectionId);
+  if (!target) ctx.fail("La sección ya no existe en la versión actual de los apuntes.");
+  const segments = await loadSourceSegments(ctx.db, ctx.job.userId, sessionId);
+  const transcript = consolidate(segments);
+  if (!transcript.blocks.length) ctx.fail("La clase no tiene transcripción suficiente.");
+  const lecture = await loadLectureContext(ctx, sessionId);
+  const attachments = await loadAttachmentPages(ctx.db, ctx.job.userId, sessionId);
+  const requested = params.language && params.language !== "auto" ? params.language : current.content.language;
+  const language = resolveLanguage(requested, transcript.dominantLanguage);
+
+  const toOutline = (s: DocumentSection): OutlineSection => ({
+    id: s.id,
+    heading: s.heading,
+    level: s.level,
+    purpose: "",
+    weight: 3,
+    ranges: s.refs.map((r) => `${r.seqFrom}-${r.seqTo}`),
+  });
+  const outline = current.content.sections.map(toOutline);
+  const section = outline.find((s) => s.id === target.id)!;
+  // A section without spans (e.g. heavily edited by hand) draws on the whole lecture.
+  if (!section.ranges.length) section.ranges = transcript.blocks.map((b) => `${b.seqFrom}-${b.seqTo}`);
+
+  await ctx.setStage(`${STAGES.draft}: ${target.heading}`);
+  const draft = await ctx.step(`section:${target.id}`, () =>
+    draftSection(ctx, {
+      section,
+      outline,
+      transcript,
+      extractions: [],
+      attachments,
+      language,
+      dominant: transcript.dominantLanguage,
+      lecture,
+      extraInstructions: [
+        "Esta es una NUEVA redacción de una sección ya existente. Mejora el borrador anterior sin perder nada que la transcripción respalde y sin añadir nada que no respalde.",
+        params.instructions?.trim()
+          ? `INSTRUCCIONES DEL ESTUDIANTE (respétalas mientras no contradigan las reglas de fidelidad): ${params.instructions.trim()}`
+          : "",
+        `BORRADOR ANTERIOR:\n${target.markdown}`,
+      ]
+        .filter(Boolean)
+        .join("\n\n"),
+    }),
+  );
+  const { markdown, refs } = normalizeRefs(draft.markdown, transcript.segments);
+  const sections = current.content.sections.map((s) =>
+    s.id === target.id
+      ? { ...s, markdown, refs: refs.length ? refs : s.refs, ambiguities: draft.ambiguities, edited: false }
+      : s,
+  );
+  const content: StudyDocumentContent = {
+    ...current.content,
+    sections,
+    meta: {
+      ...current.content.meta,
+      generatedAt: Date.now(),
+      model: config.models.notes,
+      wordCount: sections.reduce((n, s) => n + countWords(s.markdown), 0),
+    },
+  };
+  const saved = await ctx.step("persist", async () => {
+    const result = await saveDocumentVersion(ctx.db, {
+      userId: ctx.job.userId,
+      sessionId,
+      kind: "notes",
+      content,
+      origin: "ai_section",
+      jobId: ctx.job.id,
+      label: `Sección regenerada: ${target.heading}`,
+    });
+    await replaceNotesSources(ctx.db, ctx.job.userId, sessionId, content);
+    return result;
+  });
+  await ctx.setStage(STAGES.done);
+  return {
+    documentId: saved.documentId,
+    versionId: saved.versionId,
+    sectionId: target.id,
+    words: countWords(markdown),
+  };
+}
+
+registerJobHandler("section", sectionHandler);

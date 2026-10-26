@@ -3,7 +3,7 @@ import * as React from "react";
 import { AlertTriangle, Info } from "lucide-react";
 import { Badge, Callout } from "@/components/ui/misc";
 import { cn } from "@/lib/cn";
-import type { StudyDocumentContent, TranscriptRef } from "@/lib/notes/types";
+import type { DocumentSection, StudyDocumentContent, TranscriptRef } from "@/lib/notes/types";
 import { LANGUAGE_LABEL } from "@/lib/notes/types";
 import { describeRefs } from "@/lib/notes/transcript";
 import { formatDateTime } from "@/lib/time";
@@ -27,11 +27,14 @@ export function DocumentView({
   content,
   onSeek,
   renderSectionActions,
+  renderSection,
   className,
 }: {
   content: StudyDocumentContent;
   onSeek?: (ms: number, ref: TranscriptRef) => void;
-  renderSectionActions?: (sectionId: string) => React.ReactNode;
+  renderSectionActions?: (section: DocumentSection) => React.ReactNode;
+  /** Replace a whole section's body (e.g. with an editor). Return undefined to keep the default rendering. */
+  renderSection?: (section: DocumentSection) => React.ReactNode | undefined;
   className?: string;
 }) {
   const [active, setActive] = React.useState<string | null>(null);
@@ -89,33 +92,37 @@ export function DocumentView({
             }}
             className="scroll-mt-24 border-b border-border pb-8 pt-2 last:border-0"
           >
-            <div className="group mb-2 flex items-start justify-between gap-3">
-              {s.level === 1 ? (
-                <h2 className="text-[22px] font-semibold leading-tight tracking-[-0.015em]">{s.heading}</h2>
-              ) : (
-                <h3 className="text-[18px] font-semibold leading-tight tracking-[-0.01em]">{s.heading}</h3>
-              )}
-              {renderSectionActions ? <div className="shrink-0">{renderSectionActions(s.id)}</div> : null}
-            </div>
-            {s.refs.length ? (
-              <p className="mb-4 text-[12px] text-subtle">
-                Basado en la explicación entre {describeRefs(s.refs)}
-                {s.refs.length > 4 ? ` y ${s.refs.length - 4} tramos más` : ""}.
-                {s.edited ? " · Editado manualmente" : ""}
-              </p>
-            ) : s.edited ? (
-              <p className="mb-4 text-[12px] text-subtle">Editado manualmente</p>
-            ) : null}
-            <Markdown markdown={s.markdown} refs={s.refs} onSeek={onSeek} />
-            {s.ambiguities.length ? (
-              <Callout tone="neutral" icon={<Info />} title="Pasajes ambiguos en la grabación" className="mt-4">
-                <ul className="list-disc pl-4">
-                  {s.ambiguities.map((a) => (
-                    <li key={a}>{a}</li>
-                  ))}
-                </ul>
-              </Callout>
-            ) : null}
+            {renderSection?.(s) ?? (
+              <>
+                <div className="group mb-2 flex items-start justify-between gap-3">
+                  {s.level === 1 ? (
+                    <h2 className="text-[22px] font-semibold leading-tight tracking-[-0.015em]">{s.heading}</h2>
+                  ) : (
+                    <h3 className="text-[18px] font-semibold leading-tight tracking-[-0.01em]">{s.heading}</h3>
+                  )}
+                  {renderSectionActions ? <div className="shrink-0">{renderSectionActions(s)}</div> : null}
+                </div>
+                {s.refs.length ? (
+                  <p className="mb-4 text-[12px] text-subtle">
+                    Basado en la explicación entre {describeRefs(s.refs)}
+                    {s.refs.length > 4 ? ` y ${s.refs.length - 4} tramos más` : ""}.
+                    {s.edited ? " · Editado manualmente" : ""}
+                  </p>
+                ) : s.edited ? (
+                  <p className="mb-4 text-[12px] text-subtle">Editado manualmente</p>
+                ) : null}
+                <Markdown markdown={s.markdown} refs={s.refs} onSeek={onSeek} />
+                {s.ambiguities.length ? (
+                  <Callout tone="neutral" icon={<Info />} title="Pasajes ambiguos en la grabación" className="mt-4">
+                    <ul className="list-disc pl-4">
+                      {s.ambiguities.map((a) => (
+                        <li key={a}>{a}</li>
+                      ))}
+                    </ul>
+                  </Callout>
+                ) : null}
+              </>
+            )}
           </section>
         ))}
       </article>

@@ -105,12 +105,15 @@ export function LaunchJobButton({
   label,
   disabled,
   variant = "primary",
+  onLaunched,
 }: {
   sessionId: string;
   request: JobRequest | null;
   label: string;
   disabled?: boolean;
   variant?: "primary" | "secondary";
+  /** Called once the job was accepted (created or already running). */
+  onLaunched?: () => void;
 }) {
   const qc = useQueryClient();
   const [confirmOverwrite, setConfirmOverwrite] = React.useState(false);
@@ -124,6 +127,7 @@ export function LaunchJobButton({
       void qc.invalidateQueries({ queryKey: qk.jobs(sessionId) });
       void qc.invalidateQueries({ queryKey: qk.lecture(sessionId) });
       toast.success(created ? "Trabajo iniciado" : "Ya había un trabajo en curso; se muestra su progreso.");
+      onLaunched?.();
     },
     onError: (e) => {
       if (e instanceof ApiError && e.code === "user_edits_present") {

@@ -56,6 +56,13 @@ export function estimateFlashcardsCost(models: ModelConfig, notesChars: number):
   return { usd, breakdown: [{ label: "Tarjetas", usd }], transcriptTokens: t };
 }
 
+/** One section redrafted from its transcript spans plus the previous draft. */
+export function estimateSectionCost(models: ModelConfig, excerptChars: number): CostEstimate {
+  const t = estimateTokens("x".repeat(excerptChars));
+  const draft = tokenCost(models.notes, t + 2500, 0, 2500);
+  return { usd: draft, breakdown: [{ label: "Redacción de la sección", usd: draft }], transcriptTokens: t };
+}
+
 export const JOB_LABEL: Record<JobType, string> = {
   notes: "Apuntes completos",
   summaries: "Resúmenes",

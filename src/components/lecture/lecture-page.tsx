@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import {
   AlertTriangle,
   Bookmark,
-  Download,
   HelpCircle,
   Mic,
   MoreHorizontal,
@@ -22,7 +21,7 @@ import { SubjectDot } from "@/components/app/subject-dot";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog, Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Input, Label, NativeSelect } from "@/components/ui/input";
-import { Menu, MenuContent, MenuItem, MenuLabel, MenuSeparator, MenuTrigger } from "@/components/ui/menu";
+import { Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from "@/components/ui/menu";
 import { Badge, Callout, EmptyState, Skeleton } from "@/components/ui/misc";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -41,13 +40,16 @@ import {
   transcriptToText,
   type CleanableSegment,
 } from "@/lib/transcription/clean";
+import { exportAndDownload, studyDocToExport, transcriptToExport } from "@/lib/export";
 import { formatClock, formatDate, formatDuration } from "@/lib/time";
 import { ChatTab } from "./chat-tab";
+import { documentToMarkdown } from "./document-view";
+import { ExportMenu } from "./export-menu";
 import { ChunkedPlayer, type ChunkMeta, type PlayerHandle } from "./chunked-player";
 import { DocumentsTab } from "./documents-tab";
 import { ExamTab } from "./exam-tab";
 import { FlashcardsTab } from "./flashcards-tab";
-import { NotesTab } from "./notes-tab";
+import { lectureMeta, NotesTab, useDocuments } from "./notes-tab";
 import { SummaryTab } from "./summary-tab";
 
 export interface LectureDetail extends LectureCard {
@@ -201,7 +203,7 @@ export function LecturePage({ id }: { id: string }) {
             ) : null}
           </div>
           <div className="flex items-center gap-2">
-            <ExportMenu lecture={l} segments={segments.data ?? []} />
+            <LectureExportMenu lecture={l} segments={segments.data ?? []} sessionId={id} />
             <Menu>
               <MenuTrigger asChild>
                 <Button variant="secondary" size="icon" aria-label="Más acciones">
@@ -278,7 +280,7 @@ export function LecturePage({ id }: { id: string }) {
           <NotesTab sessionId={id} lecture={l} onSeek={seek} />
         </TabsContent>
         <TabsContent value="summary" className="pt-5">
-          <SummaryTab sessionId={id} onSeek={seek} />
+          <SummaryTab sessionId={id} lecture={l} onSeek={seek} />
         </TabsContent>
         <TabsContent value="exam" className="pt-5">
           <ExamTab sessionId={id} onSeek={seek} />
@@ -518,53 +520,89 @@ function TranscriptTab({
   );
 }
 
-function ExportMenu({ lecture, segments }: { lecture: LectureDetail | undefined; segments: SegmentRow[] }) {
+function LectureExportMenu({
+  lecture,
+  segments,
+  sessionId,
+}: {
+  lecture: LectureDetail | undefined;
+  segments: SegmentRow[];
+  sessionId: string;
+}) {
+  const docs = useDocuments(sessionId);
   if (!lecture) return null;
   const base = safeFileName(lecture.title);
-  const meta = {
-    subject: lecture.subjectName,
-    date: formatDate(lecture.startedAt ?? lecture.createdAt),
-    duration: formatDuration(lecture.durationMs),
-  };
+  const meta = lectureMeta(lecture, lecture.title);
+  const mdMeta = { subject: lecture.subjectName, date: meta.date, duration: meta.duration };
   const segs = segments as CleanableSegment[];
+  const notes = docs.data?.find((d) => d.kind === "notes" && d.content)?.content;
+  const md = "text/markdown;charset=utf-8";
+  const transcriptItems = [
+    {
+      label: "PDF (limpia)",
+      run: () =>
+        exportAndDownload("pdf", transcriptToExport(meta, segs, { clean: true }), `${base}-transcripcion-limpia`),
+    },
+    {
+      label: "Word (DOCX, limpia)",
+      run: () =>
+        exportAndDownload("docx", transcriptToExport(meta, segs, { clean: true }), `${base}-transcripcion-limpia`),
+    },
+    {
+      label: "PDF (original)",
+      run: () => exportAndDownload("pdf", transcriptToExport(meta, segs, { clean: false }), `${base}-transcripcion`),
+    },
+    {
+      label: "Markdown (original)",
+      run: () => downloadText(`${base}-transcripcion.md`, transcriptToMarkdown(lecture.title, mdMeta, segs), md),
+    },
+    {
+      label: "Markdown (limpia)",
+      run: () =>
+        downloadText(
+          `${base}-transcripcion-limpia.md`,
+          transcriptToMarkdown(lecture.title, mdMeta, segs, { clean: true, removeFillers: true }),
+          md,
+        ),
+    },
+    {
+      label: "Texto plano",
+      run: () => downloadText(`${base}-transcripcion.txt`, transcriptToText(segs, { timestamps: true })),
+    },
+  ];
+  const notesItems = notes
+    ? [
+        {
+          label: "PDF",
+          run: () =>
+            exportAndDownload(
+              "pdf",
+              studyDocToExport(notes, meta, { kindLabel: "Apuntes completos" }),
+              `${base}-apuntes`,
+            ),
+        },
+        {
+          label: "Word (DOCX)",
+          run: () =>
+            exportAndDownload(
+              "docx",
+              studyDocToExport(notes, meta, { kindLabel: "Apuntes completos" }),
+              `${base}-apuntes`,
+            ),
+        },
+        {
+          label: "Markdown",
+          run: () => downloadText(`${base}-apuntes.md`, documentToMarkdown(notes, mdMeta), md),
+        },
+      ]
+    : [];
   return (
-    <Menu>
-      <MenuTrigger asChild>
-        <Button variant="secondary">
-          <Download /> Exportar
-        </Button>
-      </MenuTrigger>
-      <MenuContent>
-        <MenuLabel>Transcripción</MenuLabel>
-        <MenuItem
-          onSelect={() =>
-            downloadText(
-              `${base}-transcripcion.md`,
-              transcriptToMarkdown(lecture.title, meta, segs),
-              "text/markdown;charset=utf-8",
-            )
-          }
-        >
-          Markdown (original)
-        </MenuItem>
-        <MenuItem
-          onSelect={() =>
-            downloadText(
-              `${base}-transcripcion-limpia.md`,
-              transcriptToMarkdown(lecture.title, meta, segs, { clean: true, removeFillers: true }),
-              "text/markdown;charset=utf-8",
-            )
-          }
-        >
-          Markdown (limpia)
-        </MenuItem>
-        <MenuItem
-          onSelect={() => downloadText(`${base}-transcripcion.txt`, transcriptToText(segs, { timestamps: true }))}
-        >
-          Texto plano
-        </MenuItem>
-      </MenuContent>
-    </Menu>
+    <ExportMenu
+      groups={[
+        { label: "Apuntes", items: notesItems },
+        { label: "Transcripción", items: transcriptItems },
+      ]}
+    />
   );
 }
 

@@ -7,10 +7,15 @@ import { cn } from "@/lib/cn";
 import type { JobRequest } from "@/lib/jobs/requests";
 import { SUMMARY_SPECS, type SummaryMode } from "@/lib/notes/prompts";
 import type { TranscriptRef } from "@/lib/notes/types";
-import { DocumentMeta, DocumentView } from "./document-view";
+import { DocumentMeta, DocumentView, documentToMarkdown } from "./document-view";
+import { ExportMenu } from "./export-menu";
+import type { LectureDetail } from "./lecture-page";
+import { lectureMeta } from "./notes-tab";
 import { EstimateLine, LanguageSelect, LaunchJobButton, useDefaultLanguage, type NotesLanguage } from "./generation";
 import { activeJob, JobFailure, JobProgress, latestJob, useJobs } from "./job-progress";
 import { useDocuments } from "./notes-tab";
+import { exportAndDownload, studyDocToExport } from "@/lib/export";
+import { downloadText, safeFileName } from "@/lib/transcription/clean";
 
 const MODES: SummaryMode[] = ["summary_quick", "summary_full", "summary_last_minute"];
 const MODE_HINT: Record<SummaryMode, string> = {
@@ -21,9 +26,11 @@ const MODE_HINT: Record<SummaryMode, string> = {
 
 export function SummaryTab({
   sessionId,
+  lecture,
   onSeek,
 }: {
   sessionId: string;
+  lecture: LectureDetail | undefined;
   onSeek: (ms: number, ref?: TranscriptRef) => void;
 }) {
   const docs = useDocuments(sessionId);
@@ -112,7 +119,10 @@ export function SummaryTab({
           </div>
           {current?.content ? (
             <>
-              <DocumentMeta content={current.content} extra={<span>v{current.versionNumber}</span>} />
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <DocumentMeta content={current.content} extra={<span>v{current.versionNumber}</span>} />
+                <SummaryExport content={current.content} lecture={lecture} mode={mode} />
+              </div>
               <DocumentView content={current.content} onSeek={onSeek} />
             </>
           ) : (
@@ -121,5 +131,42 @@ export function SummaryTab({
         </>
       ) : null}
     </div>
+  );
+}
+
+function SummaryExport({
+  content,
+  lecture,
+  mode,
+}: {
+  content: NonNullable<ReturnType<typeof useDocuments>["data"]>[number]["content"] & object;
+  lecture: LectureDetail | undefined;
+  mode: SummaryMode;
+}) {
+  const meta = lectureMeta(lecture, content.title);
+  const base = `${safeFileName(meta.title)}-${safeFileName(SUMMARY_SPECS[mode].title)}`;
+  const doc = () => studyDocToExport(content, meta, { kindLabel: SUMMARY_SPECS[mode].title, includeToc: false });
+  return (
+    <ExportMenu
+      size="sm"
+      groups={[
+        {
+          label: SUMMARY_SPECS[mode].title,
+          items: [
+            { label: "PDF", run: () => exportAndDownload("pdf", doc(), base) },
+            { label: "Word (DOCX)", run: () => exportAndDownload("docx", doc(), base) },
+            {
+              label: "Markdown",
+              run: () =>
+                downloadText(
+                  `${base}.md`,
+                  documentToMarkdown(content, { subject: meta.subject, date: meta.date }),
+                  "text/markdown;charset=utf-8",
+                ),
+            },
+          ],
+        },
+      ]}
+    />
   );
 }

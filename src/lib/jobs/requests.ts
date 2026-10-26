@@ -9,6 +9,7 @@ import {
   estimateExamCost,
   estimateFlashcardsCost,
   estimateNotesCost,
+  estimateSectionCost,
   estimateSummariesCost,
   type CostEstimate,
 } from "@/lib/notes/estimate";
@@ -47,6 +48,12 @@ export const jobRequestSchema = z.discriminatedUnion("type", [
     type: z.literal("flashcards"),
     language,
     maxCards: z.number().int().min(5).max(120).default(40),
+  }),
+  z.object({
+    type: z.literal("section"),
+    sectionId: z.string().min(1).max(80),
+    instructions: z.string().max(600).optional(),
+    language,
   }),
 ]);
 
@@ -92,11 +99,23 @@ export async function estimateJob(
     case "flashcards":
       if (!transcript.blocks.length) throw badRequest("La clase no tiene transcripción suficiente.");
       return { ...estimateFlashcardsCost(config.models, notesChars), ...base };
+    case "section": {
+      if (!notes) throw badRequest("No hay apuntes que regenerar.");
+      const section = notes.content.sections.find((s) => s.id === req.sectionId);
+      if (!section) throw badRequest("La sección no existe en la versión actual de los apuntes.");
+      const inSpan = (seq: number) => section.refs.some((r) => seq >= r.seqFrom && seq <= r.seqTo);
+      const spanChars = transcript.segments.reduce(
+        (n, s) => n + (s.status === "final" && inSpan(s.seq) ? s.text.length : 0),
+        0,
+      );
+      const excerptChars = Math.min(spanChars || transcriptChars, 45_000);
+      return { ...estimateSectionCost(config.models, excerptChars + section.markdown.length), ...base };
+    }
   }
 }
 
 export function dedupeKeyFor(sessionId: string, req: JobRequest): string {
-  return `${req.type}:${sessionId}`;
+  return req.type === "section" ? `section:${sessionId}:${req.sectionId}` : `${req.type}:${sessionId}`;
 }
 
 export function paramsFor(req: JobRequest): Record<string, unknown> {
