@@ -2,6 +2,11 @@ import { eq } from "drizzle-orm";
 import type { Db } from "@/lib/db";
 import { profiles } from "@/lib/db/schema";
 
+import type { NotesQuality } from "@/lib/notes/estimate";
+
+export type TranscriptionMode = "realtime" | "turns";
+export type { NotesQuality };
+
 export async function getProfile(db: Db, userId: string) {
   const [p] = await db.select().from(profiles).where(eq(profiles.userId, userId)).limit(1);
   if (p) return p;
@@ -12,6 +17,8 @@ export async function getProfile(db: Db, userId: string) {
     notesLanguage: "auto" as const,
     removeFillers: true,
     transcriptionDelay: "medium" as const,
+    transcriptionMode: "realtime" as const,
+    notesQuality: "max" as const,
     audioReviewEnabled: false,
     audioRetentionDays: null,
     monthlyBudgetUsd: null,
@@ -28,6 +35,8 @@ export type ProfilePatch = Partial<{
   notesLanguage: "auto" | "es" | "en" | "bilingual";
   removeFillers: boolean;
   transcriptionDelay: "minimal" | "low" | "medium" | "high" | "xhigh";
+  transcriptionMode: TranscriptionMode;
+  notesQuality: NotesQuality;
   audioReviewEnabled: boolean;
   audioRetentionDays: number | null;
   monthlyBudgetUsd: number | null;

@@ -88,6 +88,23 @@ Documento vivo. Cada fase indica qué se implementó, cómo se verificó y qué 
 - Service worker activo en la vista previa de workerd, página offline servida sin red, manifest válido.
 - Peso de cliente medido en la vista previa de producción: 0,7 MB de JS sin comprimir en panel y ajustes, 0,85 MB en grabación, 1,6 MB en la página de clase antes de diferir el editor.
 
+## Fase 6 — Producción en Cloudflare y control de coste
+
+### Implementado
+
+- Recursos reales en la cuenta de Cloudflare: D1 `studyflow` (migraciones aplicadas en remoto), R2 `studyflow-files`, Worker `studyflow` con Workflow `StudyJobWorkflow`, cron de retención, `observability` y límite de CPU de 5 minutos (plan Workers Paid). Despliegue automático en cada push a `main` con `.github/workflows/deploy.yml`, que aplica las migraciones pendientes, construye con OpenNext y sube el secreto `OPENAI_API_KEY`.
+- Correcciones salidas del primer uso real: un 401 de OpenAI (clave equivocada) se devuelve como `502 openai_auth` con el secreto a revisar en vez de expulsar al usuario de la grabación; «Finalizar» solo espera los fragmentos de audio de los que el navegador tiene datos (un fragmento abierto sin ningún trozo grabado ya no bloquea el cierre).
+- Dos palancas de coste en Ajustes, guardadas en el perfil (`migrations/0002_cost_preferences.sql`):
+  - **Modo de transcripción**: «En directo» (WebSocket, ≈ 1,02 $/h) o «Por turnos» (cada frase se envía al terminar, ≈ 0,27 $/h). Se aplica al empezar cada clase nueva; el servidor fija el modo en `start` y el cliente lo adopta.
+  - **Calidad de los apuntes**: «Máxima» (modelo principal en índice, redacción y revisión) o «Económica» (índice con el modelo principal; redacción, revisión y parches con el modelo rápido). La estimación previa, el presupuesto y la ficha del documento usan el modelo que redacta de verdad. La petición de apuntes puede fijar `quality` explícitamente; si no, se toma del perfil.
+  - Ajustes muestra el coste orientativo de una clase de dos horas con la combinación elegida (≈ 3,97 $ con todo al máximo, ≈ 0,78 $ con las dos opciones económicas).
+
+### Verificado
+
+- **Transcripción en directo en producción** (`gpt-live-transcribe` por WebSocket): confirmada con datos reales de la base D1 de producción (segmentos con origen `realtime` y consumo del modelo en directo). Gasto real acumulado en producción al cierre de esta fase: 0,057 $ (apuntes de una clase de 83 s: 0,042 $; 44 s de transcripción en directo: 0,0125 $; 22 s por turnos: 0,0016 $). El «0,21 $» que muestra la pantalla de apuntes para una clase de 4 minutos es el suelo de la estimación previa (mínimo de 8 secciones), no el gasto real.
+- Palancas de coste en navegador (Chromium, micrófono simulado): el cambio en Ajustes persiste tras recargar; con el perfil en «Por turnos» la grabación arranca en ese modo (sesión local y clase en servidor en `turns`, cero peticiones de credencial en directo, indicador «Transcripción por turnos»); un usuario con los valores por defecto sigue arrancando en directo. La estimación de apuntes sin `quality` coincide con la del perfil (económica 0,068 $ frente a 0,49 $ en máxima para la clase de 18 minutos).
+- Generación real de apuntes en modo económico sobre la clase de 18 minutos: véase la nota al final de esta sección.
+
 ## Informe de entrega
 
 ### Lo que funciona y se ha probado
@@ -95,13 +112,12 @@ Documento vivo. Cada fase indica qué se implementó, cómo se verificó y qué 
 - Grabación robusta con guardado progresivo, recuperación y transcripción fiel en el idioma hablado (ruta por turnos verificada de extremo a extremo con audio sintético real en EN/ES/mezcla).
 - Apuntes multi‑etapa con trazabilidad al audio, resúmenes, examen interactivo, flashcards, chat con citas, documentos del profesor, editor con versiones, exportación PDF/DOCX/MD/TXT.
 - Aislamiento por usuario, almacenamiento privado, API key solo en servidor (el navegador recibe únicamente credenciales temporales `ek_…`), registro de consumo con estimación previa y límites.
-- Build de producción y ejecución en workerd con Workflows.
+- Build de producción y ejecución en workerd con Workflows; desplegado en Cloudflare (`https://studyflow.lucasgilgon.workers.dev`) con transcripción en directo confirmada en producción.
+- Control del gasto: estimación previa, límites mensual y por tarea, y dos palancas en Ajustes (transcripción por turnos, apuntes en modo económico) que dejan una clase de dos horas en torno a 0,8 $ en vez de 4 $.
 
 ### Lo que requiere credenciales o entorno real para confirmarlo
 
-- **Transcripción en directo por WebSocket** (`gpt-live-transcribe`): el entorno donde se construyó el proyecto bloquea los upgrades de WebSocket (405), así que la conexión real desde el navegador no pudo ejecutarse. El cliente sigue la documentación oficial (se verificó la emisión de credenciales temporales con los parámetros exactos) y, si falla, cae sin intervención a la transcripción por turnos, que sí está verificada. Primera prueba manual recomendada: una clase corta mirando el indicador «En directo».
 - **Safari e iOS**: la lógica tiene en cuenta `audio/mp4` y la rotación de 30 s, pero solo se ha probado en Chromium. Comprobar en iPhone el comportamiento con pantalla bloqueada.
-- **Despliegue real en Cloudflare** (cuenta, `database_id`, secretos, plan Paid para Workflows y CPU extendida): no se ha podido ejecutar desde aquí; `docs/DEPLOY.md` detalla los pasos y la verificación previa.
 - **Clase de 90 minutos con audio real**: el pipeline se probó de extremo a extremo con una transcripción sintética de 88 minutos (1,88 $ de apuntes); falta comprobar la grabación continua de 90 minutos con micrófono real (rotación de fragmentos, memoria del navegador, subida en segundo plano).
 
 ### Limitaciones conocidas

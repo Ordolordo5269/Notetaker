@@ -4,6 +4,7 @@ import type { Db } from "@/lib/db";
 import type { AppConfig } from "@/lib/env";
 import { badRequest } from "@/lib/errors";
 import { getCurrentContent, loadAttachmentPages, loadSourceSegments } from "@/lib/data/documents";
+import { getProfile } from "@/lib/data/profile";
 import { consolidate } from "@/lib/notes/transcript";
 import {
   estimateExamCost,
@@ -23,6 +24,8 @@ export const jobRequestSchema = z.discriminatedUnion("type", [
     language,
     includeAttachments: z.boolean().default(true),
     label: z.string().max(120).optional(),
+    // Omitted = the user's preference in Ajustes (see withProfileDefaults).
+    quality: z.enum(["max", "economy"]).optional(),
   }),
   z.object({
     type: z.literal("summaries"),
@@ -59,6 +62,13 @@ export const jobRequestSchema = z.discriminatedUnion("type", [
 
 export type JobRequest = z.infer<typeof jobRequestSchema>;
 
+/** Fill request fields the client left out with the user's saved preferences. */
+export async function withProfileDefaults(db: Db, userId: string, req: JobRequest): Promise<JobRequest> {
+  if (req.type !== "notes" || req.quality) return req;
+  const profile = await getProfile(db, userId);
+  return { ...req, quality: profile.notesQuality };
+}
+
 export async function estimateJob(
   db: Db,
   config: AppConfig,
@@ -83,7 +93,13 @@ export async function estimateJob(
         ? (await loadAttachmentPages(db, userId, sessionId)).reduce((n, p) => n + p.text.length, 0)
         : 0;
       return {
-        ...estimateNotesCost(config.models, transcriptChars, attachmentChars, transcript.blocks.length),
+        ...estimateNotesCost(
+          config.models,
+          transcriptChars,
+          attachmentChars,
+          transcript.blocks.length,
+          req.quality ?? "max",
+        ),
         ...base,
       };
     }

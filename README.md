@@ -13,7 +13,7 @@ Aplicación web para estudiantes universitarios: graba la clase, la transcribe e
 - **Documentos del profesor** (PDF, DOCX, PPTX): texto por página integrado en apuntes y chat («¿Qué explicó sobre la diapositiva 12?»).
 - **Editor de apuntes** por secciones (Tiptap) con historial de versiones, restauración y regeneración de una sola sección.
 - **Exportación profesional** generada en el dispositivo: PDF (índice, citas, pie de página), Word (DOCX con índice real), Markdown y TXT.
-- **Seguridad y costes**: cuentas propias, aislamiento por usuario, almacenamiento privado, API key solo en el servidor, registro de consumo, estimación previa y límites mensual/por tarea.
+- **Seguridad y costes**: cuentas propias, aislamiento por usuario, almacenamiento privado, API key solo en el servidor, registro de consumo, estimación previa y límites mensual/por tarea. En Ajustes se elige el modo de transcripción (en directo ≈ 1 $/h o por turnos ≈ 0,27 $/h) y la calidad de los apuntes (máxima o económica); la pantalla muestra lo que cuesta una clase de dos horas con la combinación elegida.
 
 ## Stack
 

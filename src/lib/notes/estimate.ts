@@ -10,6 +10,16 @@ export interface CostEstimate {
   transcriptTokens: number;
 }
 
+export type NotesQuality = "max" | "economy";
+
+/** The outline is capped at this many sections in the pipeline (sanitizeOutline). */
+export const MAX_OUTLINE_SECTIONS = 40;
+
+/** Model that drafts and reviews the sections for a given quality setting. */
+export function draftingModel(models: ModelConfig, quality: NotesQuality): string {
+  return quality === "economy" ? models.fast : models.notes;
+}
+
 /**
  * Calibrated against real runs (2026-10): an 18-minute class (2 blocks) cost 0.36 $ and an
  * 88-minute class (11 blocks, 40 sections, 24k words) cost 1.88 $ with the default models.
@@ -21,24 +31,22 @@ export function estimateNotesCost(
   transcriptChars: number,
   attachmentChars: number,
   blocks: number,
+  quality: NotesQuality = "max",
 ): CostEstimate {
   const t = estimateTokens("x".repeat(transcriptChars));
   const a = estimateTokens("x".repeat(attachmentChars));
-  const sections = Math.max(8, Math.round(16 + 2.4 * blocks));
+  const sections = Math.min(MAX_OUTLINE_SECTIONS, Math.max(8, Math.round(16 + 2.4 * blocks)));
+  const drafter = draftingModel(models, quality);
   const extraction = tokenCost(models.fast, t * 1.15 + blocks * 900, 0, blocks * 1200);
+  // The outline always uses the notes model: the structure decides the quality of the whole document.
   const outline = tokenCost(models.notes, blocks * 1600 + 2500, 0, 2500 + blocks * 400);
   // Short classes feed each section a slice of the whole transcript and write shorter sections;
   // long classes hit the per-section context cap and write ~600-word sections.
   const perSectionIn = Math.min(t * 0.8, 11_000) + 3500 + Math.min(a, 3000);
   const perSectionOut = 1250 * Math.min(1, 0.5 + t / 40_000);
   // Parent sections are short overviews, so not every section costs a full draft.
-  const drafts = 0.8 * sections * tokenCost(models.notes, perSectionIn, 0, perSectionOut);
-  const review = tokenCost(
-    models.notes,
-    t * 1.3 + blocks * 1200 + sections * perSectionOut * 0.7,
-    0,
-    3000 + blocks * 300,
-  );
+  const drafts = 0.8 * sections * tokenCost(drafter, perSectionIn, 0, perSectionOut);
+  const review = tokenCost(drafter, t * 1.3 + blocks * 1200 + sections * perSectionOut * 0.7, 0, 3000 + blocks * 300);
   const patches = drafts * 0.15;
   const breakdown = [
     { label: "Extracción por bloques", usd: extraction },

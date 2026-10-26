@@ -2,6 +2,7 @@ import { z } from "zod";
 import { authedRoute, readJson } from "@/lib/api/route";
 import { getLectureRow, listChunks, missingFrom, missingSequences, transitionLecture } from "@/lib/data/lectures";
 import { conflict } from "@/lib/errors";
+import { getProfile } from "@/lib/data/profile";
 
 const Body = z.discriminatedUnion("action", [
   z.object({
@@ -33,13 +34,16 @@ export const POST = authedRoute<{ id: string }>(async ({ db, user, params, req }
   const id = params.id;
   const current = await getLectureRow(db, user.id, id);
   switch (body.action) {
-    case "start":
+    case "start": {
+      // The client normally leaves the mode to the preference saved in Ajustes.
+      const transcriptionMode = body.transcriptionMode ?? (await getProfile(db, user.id)).transcriptionMode;
       return {
         lecture: await transitionLecture(db, user.id, id, "recording", {
-          transcriptionMode: body.transcriptionMode,
+          transcriptionMode,
           audioMime: body.audioMime,
         }),
       };
+    }
     case "pause":
       return { lecture: await transitionLecture(db, user.id, id, "paused", { durationMs: body.durationMs }) };
     case "resume":

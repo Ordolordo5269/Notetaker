@@ -15,14 +15,26 @@ interface ProfileResponse {
     notesLanguage: "auto" | "es" | "en" | "bilingual";
     removeFillers: boolean;
     transcriptionDelay: "minimal" | "low" | "medium" | "high" | "xhigh";
+    transcriptionMode: "realtime" | "turns";
+    notesQuality: "max" | "economy";
     audioReviewEnabled: boolean;
     audioRetentionDays: number | null;
     monthlyBudgetUsd: number | null;
     jobBudgetUsd: number | null;
   };
   usage: { monthSpendUsd: number; monthly: number | null; perJob: number | null; pricingCheckedAt: string };
+  outlook: {
+    transcriptionPerHour: { realtime: number; turns: number };
+    notesTwoHours: { max: number; economy: number };
+    referenceMinutes: number;
+  };
   models: Record<string, string>;
   openaiConfigured: boolean;
+}
+
+/** "1,02 $" — Spanish decimal comma, two decimals, dollar sign (prices are in USD). */
+function usd(n: number): string {
+  return `${n.toFixed(2).replace(".", ",")} $`;
 }
 
 function Field({
@@ -81,6 +93,26 @@ export function SettingsPage() {
         <SectionHeading title="Transcripción" />
         <div className="divide-y divide-border rounded-xl border border-border bg-surface px-4 shadow-soft">
           <Field
+            label="Modo de transcripción"
+            hint="En directo escribe mientras habla el profesor. Por turnos envía cada frase al terminar (unos segundos de retardo) y cuesta casi cuatro veces menos. Se aplica a las clases que empieces a partir de ahora."
+            htmlFor="transcription-mode"
+          >
+            {isPending || !p || !data ? (
+              <Skeleton className="h-10" />
+            ) : (
+              <NativeSelect
+                id="transcription-mode"
+                value={p.transcriptionMode}
+                onChange={(e) => patch.mutate({ transcriptionMode: e.target.value })}
+              >
+                <option value="realtime">
+                  En directo · ≈ {usd(data.outlook.transcriptionPerHour.realtime)} por hora
+                </option>
+                <option value="turns">Por turnos · ≈ {usd(data.outlook.transcriptionPerHour.turns)} por hora</option>
+              </NativeSelect>
+            )}
+          </Field>
+          <Field
             label="Latencia de la transcripción en directo"
             hint="Más retardo da más contexto al modelo y suele mejorar la precisión."
             htmlFor="delay"
@@ -121,6 +153,26 @@ export function SettingsPage() {
       <section className="mb-10">
         <SectionHeading title="Apuntes" />
         <div className="divide-y divide-border rounded-xl border border-border bg-surface px-4 shadow-soft">
+          <Field
+            label="Calidad de los apuntes"
+            hint="Máxima redacta y revisa cada sección con el modelo principal. Económica conserva el índice con el modelo principal pero redacta con el modelo rápido: apuntes más sencillos por una fracción del coste. El precio es orientativo para una clase de dos horas."
+            htmlFor="notes-quality"
+          >
+            {p && data ? (
+              <NativeSelect
+                id="notes-quality"
+                value={p.notesQuality}
+                onChange={(e) => patch.mutate({ notesQuality: e.target.value })}
+              >
+                <option value="max">Máxima · ≈ {usd(data.outlook.notesTwoHours.max)} por clase de 2 h</option>
+                <option value="economy">
+                  Económica · ≈ {usd(data.outlook.notesTwoHours.economy)} por clase de 2 h
+                </option>
+              </NativeSelect>
+            ) : (
+              <Skeleton className="h-10" />
+            )}
+          </Field>
           <Field
             label="Idioma de los apuntes por defecto"
             hint="Nunca modifica la transcripción guardada."
@@ -237,6 +289,20 @@ export function SettingsPage() {
             )}
           </Field>
         </div>
+        {data && p ? (
+          <p className="mt-3 text-[13px] leading-relaxed text-muted" data-testid="two-hour-outlook">
+            Una clase de {data.outlook.referenceMinutes / 60} horas con tus ajustes actuales cuesta aproximadamente{" "}
+            {usd(data.outlook.transcriptionPerHour[p.transcriptionMode] * (data.outlook.referenceMinutes / 60))} de
+            transcripción y {usd(data.outlook.notesTwoHours[p.notesQuality])} de apuntes completos:{" "}
+            <span className="font-medium text-foreground">
+              {usd(
+                data.outlook.transcriptionPerHour[p.transcriptionMode] * (data.outlook.referenceMinutes / 60) +
+                  data.outlook.notesTwoHours[p.notesQuality],
+              )}
+            </span>{" "}
+            en total. Resúmenes, examen, flashcards y chat se cobran aparte cuando los pides.
+          </p>
+        ) : null}
         {data ? (
           <p className="mt-3 text-[12.5px] leading-relaxed text-subtle">
             Modelos configurados: directo {data.models.live}, archivos {data.models.file}, apuntes {data.models.notes},

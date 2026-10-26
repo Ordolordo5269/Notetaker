@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { estimateNotesCost, estimateSectionCost } from "@/lib/notes/estimate";
+import { costOutlook, REFERENCE_CLASS } from "@/lib/cost/outlook";
 import { consolidate } from "@/lib/notes/transcript";
 
 const models = {
@@ -47,5 +48,29 @@ describe("notes cost estimate (calibrated against real runs)", () => {
     expect(b).toBeGreaterThan(a);
     expect(c).toBeGreaterThan(b);
     expect(estimateSectionCost(models, 12_000).usd).toBeLessThan(a / 4);
+  });
+
+  it("economy mode drafts with the fast model and costs a small fraction of maximum quality", () => {
+    const { transcriptChars, blocks } = REFERENCE_CLASS;
+    const max = estimateNotesCost(models, transcriptChars, 0, blocks, "max");
+    const economy = estimateNotesCost(models, transcriptChars, 0, blocks, "economy");
+    expect(economy.usd).toBeLessThan(max.usd / 4);
+    // The outline keeps the notes model in both modes, so it costs the same.
+    expect(economy.breakdown[1]!.usd).toBeCloseTo(max.breakdown[1]!.usd, 6);
+    expect(economy.breakdown[2]!.usd).toBeLessThan(max.breakdown[2]!.usd / 10);
+  });
+});
+
+describe("cost outlook shown in Ajustes", () => {
+  it("reports per-hour transcription prices and a two-hour notes estimate per quality", () => {
+    const o = costOutlook(models);
+    expect(o.referenceMinutes).toBe(120);
+    expect(o.transcriptionPerHour.realtime).toBeCloseTo(1.02, 2);
+    expect(o.transcriptionPerHour.turns).toBeCloseTo(0.27, 2);
+    expect(o.transcriptionPerHour.turns).toBeLessThan(o.transcriptionPerHour.realtime / 3);
+    // Two hours of class: the 88-minute run cost 1.88 $, so the maximum-quality figure lands above it.
+    expect(o.notesTwoHours.max).toBeGreaterThan(1.88);
+    expect(o.notesTwoHours.max).toBeLessThan(3.5);
+    expect(o.notesTwoHours.economy).toBeLessThan(0.5);
   });
 });
