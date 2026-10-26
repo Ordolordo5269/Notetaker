@@ -6,8 +6,21 @@ import { cn } from "@/lib/cn";
 export const Tabs = T.Root;
 
 export function TabsList({ className, ...props }: React.ComponentProps<typeof T.List>) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  // On narrow screens the list scrolls horizontally: keep the active tab visible.
+  React.useEffect(() => {
+    const list = ref.current;
+    if (!list) return;
+    const reveal = () =>
+      list.querySelector<HTMLElement>("[data-state=active]")?.scrollIntoView({ inline: "nearest", block: "nearest" });
+    reveal();
+    const obs = new MutationObserver(reveal);
+    obs.observe(list, { attributes: true, subtree: true, attributeFilter: ["data-state"] });
+    return () => obs.disconnect();
+  }, []);
   return (
     <T.List
+      ref={ref}
       className={cn("flex items-center gap-1 overflow-x-auto border-b border-border [scrollbar-width:none]", className)}
       {...props}
     />

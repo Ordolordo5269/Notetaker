@@ -170,8 +170,8 @@ const PAGE_RE = /\b(?:diapositiva|slide|p[aá]gina|page|p\.)\s*(\d{1,3})\b/i;
 // Function words that carry no retrieval signal (ES + EN). Kept short on purpose.
 const STOPWORDS = new Set(
   (
-    "a al algo ante como con cuál cuáles cual cuales cuando de del desde donde dónde el ella ellos en entre era es esa ese eso esta este esto fue ha han hay la las le lo los me mi muy más nos o para pero por que qué quien quién se ser si sin sobre su sus también te tiene un una unas uno unos y ya explicó explica explicado dijo dice habló profesor profesora clase " +
-    "a an and are as at be by did do does for from had has have how in into is it its of on or said say says that the their there these this those to was were what when where which who why will with you your lecture professor teacher explain explained"
+    "a al algo ante como con cuál cuáles cual cuales cuando de del desde donde dónde el ella ellos en entre era es esa ese eso esta este esto fue ha han hay la las le lo los me mi muy más nos o para pero por que qué quien quién se ser si sin sobre su sus también te tiene un una unas uno unos y ya explicó explica explicado dijo dice habló mencionó comentó contó acerca profesor profesora docente clase " +
+    "a an and are as at be by did do does for from had has have how in into is it its of on or said say says that the their there these this those to was were what when where which who why will with you your lecture lecturer professor teacher explain explained about tell told talk talked mention mentioned"
   ).split(/\s+/),
 );
 
