@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import {
   AlertTriangle,
   Bookmark,
-  Download,
   HelpCircle,
   Mic,
   MoreHorizontal,
@@ -22,7 +21,7 @@ import { SubjectDot } from "@/components/app/subject-dot";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog, Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Input, Label, NativeSelect } from "@/components/ui/input";
-import { Menu, MenuContent, MenuItem, MenuLabel, MenuSeparator, MenuTrigger } from "@/components/ui/menu";
+import { Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from "@/components/ui/menu";
 import { Badge, Callout, EmptyState, Skeleton } from "@/components/ui/misc";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -41,8 +40,17 @@ import {
   transcriptToText,
   type CleanableSegment,
 } from "@/lib/transcription/clean";
+import { exportAndDownload, studyDocToExport, transcriptToExport } from "@/lib/export";
 import { formatClock, formatDate, formatDuration } from "@/lib/time";
+import { ChatTab } from "./chat-tab";
+import { documentToMarkdown } from "./document-view";
+import { ExportMenu } from "./export-menu";
 import { ChunkedPlayer, type ChunkMeta, type PlayerHandle } from "./chunked-player";
+import { DocumentsTab } from "./documents-tab";
+import { ExamTab } from "./exam-tab";
+import { FlashcardsTab } from "./flashcards-tab";
+import { lectureMeta, NotesTab, useDocuments } from "./notes-tab";
+import { SummaryTab } from "./summary-tab";
 
 export interface LectureDetail extends LectureCard {
   endedAt: number | null;
@@ -105,6 +113,9 @@ export function LecturePage({ id }: { id: string }) {
   const [tab, setTab] = React.useState(params.get("tab") ?? "transcript");
   const [editOpen, setEditOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
+  // Cross-tab hand-offs: a chat citation opens a document page; "Preguntar" on a page prefills the chat.
+  const [focusPage, setFocusPage] = React.useState<{ attachmentId: string; page: number } | null>(null);
+  const [chatPrefill, setChatPrefill] = React.useState<{ text: string; nonce: number } | null>(null);
 
   // Deep link from search: /lectures/:id?t=<ms>
   const initialSeek = React.useRef<number | null>(params.get("t") ? Number(params.get("t")) : null);
@@ -170,7 +181,12 @@ export function LecturePage({ id }: { id: string }) {
               <Skeleton className="h-4 w-32" />
             )}
             <h1 className="mt-1 text-[24px] font-semibold leading-tight tracking-[-0.02em] sm:text-[28px]">
-              {l?.title ?? <Skeleton className="h-8 w-80" />}
+              {l?.title ?? (
+                <>
+                  <span className="sr-only">Cargando clase…</span>
+                  <Skeleton className="h-8 w-80" />
+                </>
+              )}
             </h1>
             {l ? (
               <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13.5px] text-muted">
@@ -192,7 +208,7 @@ export function LecturePage({ id }: { id: string }) {
             ) : null}
           </div>
           <div className="flex items-center gap-2">
-            <ExportMenu lecture={l} segments={segments.data ?? []} />
+            <LectureExportMenu lecture={l} segments={segments.data ?? []} sessionId={id} />
             <Menu>
               <MenuTrigger asChild>
                 <Button variant="secondary" size="icon" aria-label="Más acciones">
@@ -234,7 +250,46 @@ export function LecturePage({ id }: { id: string }) {
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="transcript">Transcripción</TabsTrigger>
+          <TabsTrigger value="notes">Apuntes</TabsTrigger>
+          <TabsTrigger value="summary">Resumen</TabsTrigger>
+          <TabsTrigger value="exam">Examen</TabsTrigger>
+          <TabsTrigger value="flashcards">Flashcards</TabsTrigger>
+          <TabsTrigger value="chat">Chat</TabsTrigger>
+          <TabsTrigger value="documents">Documentos</TabsTrigger>
         </TabsList>
+        <TabsContent value="flashcards" className="pt-5">
+          <FlashcardsTab sessionId={id} onSeek={seek} />
+        </TabsContent>
+        <TabsContent value="chat" className="pt-5">
+          <ChatTab
+            sessionId={id}
+            onSeek={seek}
+            prefill={chatPrefill}
+            onOpenPage={(attachmentId, page) => {
+              setFocusPage({ attachmentId, page });
+              setTab("documents");
+            }}
+          />
+        </TabsContent>
+        <TabsContent value="documents" className="pt-5">
+          <DocumentsTab
+            sessionId={id}
+            focus={focusPage}
+            onAskAboutPage={(question) => {
+              setChatPrefill({ text: question, nonce: Date.now() });
+              setTab("chat");
+            }}
+          />
+        </TabsContent>
+        <TabsContent value="notes" className="pt-5">
+          <NotesTab sessionId={id} lecture={l} onSeek={seek} />
+        </TabsContent>
+        <TabsContent value="summary" className="pt-5">
+          <SummaryTab sessionId={id} lecture={l} onSeek={seek} />
+        </TabsContent>
+        <TabsContent value="exam" className="pt-5">
+          <ExamTab sessionId={id} onSeek={seek} />
+        </TabsContent>
         <TabsContent value="transcript" className="pt-5">
           <TranscriptTab
             segments={segments.data}
@@ -470,53 +525,89 @@ function TranscriptTab({
   );
 }
 
-function ExportMenu({ lecture, segments }: { lecture: LectureDetail | undefined; segments: SegmentRow[] }) {
+function LectureExportMenu({
+  lecture,
+  segments,
+  sessionId,
+}: {
+  lecture: LectureDetail | undefined;
+  segments: SegmentRow[];
+  sessionId: string;
+}) {
+  const docs = useDocuments(sessionId);
   if (!lecture) return null;
   const base = safeFileName(lecture.title);
-  const meta = {
-    subject: lecture.subjectName,
-    date: formatDate(lecture.startedAt ?? lecture.createdAt),
-    duration: formatDuration(lecture.durationMs),
-  };
+  const meta = lectureMeta(lecture, lecture.title);
+  const mdMeta = { subject: lecture.subjectName, date: meta.date, duration: meta.duration };
   const segs = segments as CleanableSegment[];
+  const notes = docs.data?.find((d) => d.kind === "notes" && d.content)?.content;
+  const md = "text/markdown;charset=utf-8";
+  const transcriptItems = [
+    {
+      label: "PDF (limpia)",
+      run: () =>
+        exportAndDownload("pdf", transcriptToExport(meta, segs, { clean: true }), `${base}-transcripcion-limpia`),
+    },
+    {
+      label: "Word (DOCX, limpia)",
+      run: () =>
+        exportAndDownload("docx", transcriptToExport(meta, segs, { clean: true }), `${base}-transcripcion-limpia`),
+    },
+    {
+      label: "PDF (original)",
+      run: () => exportAndDownload("pdf", transcriptToExport(meta, segs, { clean: false }), `${base}-transcripcion`),
+    },
+    {
+      label: "Markdown (original)",
+      run: () => downloadText(`${base}-transcripcion.md`, transcriptToMarkdown(lecture.title, mdMeta, segs), md),
+    },
+    {
+      label: "Markdown (limpia)",
+      run: () =>
+        downloadText(
+          `${base}-transcripcion-limpia.md`,
+          transcriptToMarkdown(lecture.title, mdMeta, segs, { clean: true, removeFillers: true }),
+          md,
+        ),
+    },
+    {
+      label: "Texto plano",
+      run: () => downloadText(`${base}-transcripcion.txt`, transcriptToText(segs, { timestamps: true })),
+    },
+  ];
+  const notesItems = notes
+    ? [
+        {
+          label: "PDF",
+          run: () =>
+            exportAndDownload(
+              "pdf",
+              studyDocToExport(notes, meta, { kindLabel: "Apuntes completos" }),
+              `${base}-apuntes`,
+            ),
+        },
+        {
+          label: "Word (DOCX)",
+          run: () =>
+            exportAndDownload(
+              "docx",
+              studyDocToExport(notes, meta, { kindLabel: "Apuntes completos" }),
+              `${base}-apuntes`,
+            ),
+        },
+        {
+          label: "Markdown",
+          run: () => downloadText(`${base}-apuntes.md`, documentToMarkdown(notes, mdMeta), md),
+        },
+      ]
+    : [];
   return (
-    <Menu>
-      <MenuTrigger asChild>
-        <Button variant="secondary">
-          <Download /> Exportar
-        </Button>
-      </MenuTrigger>
-      <MenuContent>
-        <MenuLabel>Transcripción</MenuLabel>
-        <MenuItem
-          onSelect={() =>
-            downloadText(
-              `${base}-transcripcion.md`,
-              transcriptToMarkdown(lecture.title, meta, segs),
-              "text/markdown;charset=utf-8",
-            )
-          }
-        >
-          Markdown (original)
-        </MenuItem>
-        <MenuItem
-          onSelect={() =>
-            downloadText(
-              `${base}-transcripcion-limpia.md`,
-              transcriptToMarkdown(lecture.title, meta, segs, { clean: true, removeFillers: true }),
-              "text/markdown;charset=utf-8",
-            )
-          }
-        >
-          Markdown (limpia)
-        </MenuItem>
-        <MenuItem
-          onSelect={() => downloadText(`${base}-transcripcion.txt`, transcriptToText(segs, { timestamps: true }))}
-        >
-          Texto plano
-        </MenuItem>
-      </MenuContent>
-    </Menu>
+    <ExportMenu
+      groups={[
+        { label: "Apuntes", items: notesItems },
+        { label: "Transcripción", items: transcriptItems },
+      ]}
+    />
   );
 }
 

@@ -3,7 +3,7 @@ import { SESSION_COOKIE } from "@/lib/auth/sessions";
 
 // Optimistic redirect only: real session validation happens in every page
 // and API route (data-access layer), never in the proxy.
-const PUBLIC_PATHS = ["/login", "/signup", "/privacy"];
+const PUBLIC_PATHS = ["/login", "/signup", "/privacy", "/offline"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

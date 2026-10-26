@@ -47,6 +47,9 @@ async function openaiFetch(
   if (init.json !== undefined) headers["Content-Type"] = "application/json";
   if (init.safetyId) headers["OpenAI-Safety-Identifier"] = init.safetyId;
   let res: Response;
+  const startedAt = Date.now();
+  const debug = config.appEnv !== "production";
+  if (debug) console.debug(`[openai] → ${init.method ?? "POST"} ${path}`);
   try {
     res = await fetch(`${config.openaiBaseUrl}${path}`, {
       method: init.method ?? "POST",
@@ -61,6 +64,7 @@ async function openaiFetch(
     }
     throw new OpenAIError(502, `No se pudo contactar con OpenAI: ${(err as Error).message}`, true);
   }
+  if (debug) console.debug(`[openai] ← ${res.status} ${path} in ${Date.now() - startedAt} ms`);
   if (res.ok) return res;
   const retryable = res.status === 429 || res.status >= 500;
   if (retryable && attempt < 2) {
@@ -136,41 +140,129 @@ function usageOf(body: ResponsesBody): OpenAIUsage {
   };
 }
 
-/** Call the Responses API with a strict JSON schema and parse the result. */
+/**
+ * Server-sent events of a streamed Responses call. Streaming is used for
+ * every generation: long drafts keep bytes flowing (intermediaries with idle
+ * timeouts stay happy) and the final event carries status and usage.
+ */
+async function readResponsesStream(res: Response): Promise<ResponsesBody> {
+  if (!res.body) throw new OpenAIError(502, "Respuesta vacía de OpenAI.", true);
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let text = "";
+  let final: ResponsesBody | null = null;
+  const handle = (eventName: string, data: string) => {
+    let payload: Record<string, unknown>;
+    try {
+      payload = JSON.parse(data) as Record<string, unknown>;
+    } catch {
+      return;
+    }
+    const type = (payload.type as string | undefined) ?? eventName;
+    if (type === "response.output_text.delta") {
+      text += (payload.delta as string | undefined) ?? "";
+    } else if (type === "response.completed" || type === "response.incomplete" || type === "response.failed") {
+      final = payload.response as ResponsesBody;
+    } else if (type === "error") {
+      const err = payload.error as { message?: string } | undefined;
+      throw new OpenAIError(502, `OpenAI: ${err?.message ?? (payload.message as string) ?? "error en el flujo"}`, true);
+    }
+  };
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let idx: number;
+    while ((idx = buffer.indexOf("\n\n")) !== -1) {
+      const chunk = buffer.slice(0, idx);
+      buffer = buffer.slice(idx + 2);
+      let eventName = "";
+      const dataLines: string[] = [];
+      for (const line of chunk.split("\n")) {
+        if (line.startsWith("event:")) eventName = line.slice(6).trim();
+        else if (line.startsWith("data:")) dataLines.push(line.slice(5).trimStart());
+      }
+      if (dataLines.length) handle(eventName, dataLines.join("\n"));
+    }
+  }
+  if (!final) {
+    throw new OpenAIError(502, "El flujo de OpenAI terminó sin un evento final.", true);
+  }
+  const body = final as ResponsesBody;
+  if (!body.output_text && text) body.output_text = text;
+  return body;
+}
+
+const MAX_OUTPUT_TOKENS_CAP = 32_000;
+
+function lowerEffort(effort: StructuredRequest["reasoningEffort"]): StructuredRequest["reasoningEffort"] {
+  return effort === "high" ? "medium" : effort === "medium" ? "low" : effort;
+}
+
+function addUsage(a: OpenAIUsage, b: OpenAIUsage): OpenAIUsage {
+  return {
+    inputTokens: a.inputTokens + b.inputTokens,
+    cachedInputTokens: a.cachedInputTokens + b.cachedInputTokens,
+    outputTokens: a.outputTokens + b.outputTokens,
+  };
+}
+
+/**
+ * Call the Responses API with a strict JSON schema and parse the result.
+ * `max_output_tokens` also covers reasoning tokens, so a long lecture can
+ * exhaust it; an incomplete answer is retried with a larger budget and less
+ * reasoning before giving up (usage of every attempt is returned).
+ */
 export async function createStructured<T>(
   config: AppConfig,
   req: StructuredRequest,
 ): Promise<{ data: T; usage: OpenAIUsage }> {
-  const res = await openaiFetch(config, "/responses", {
-    signal: req.signal,
-    safetyId: req.safetyId,
-    json: {
-      model: req.model,
-      input: [
-        { role: "system", content: req.system },
-        { role: "user", content: req.user },
-      ],
-      ...(req.reasoningEffort && req.reasoningEffort !== "none" ? { reasoning: { effort: req.reasoningEffort } } : {}),
-      ...(req.maxOutputTokens ? { max_output_tokens: req.maxOutputTokens } : {}),
-      text: { format: { type: "json_schema", name: req.schema.name, strict: true, schema: req.schema.schema } },
-      store: false,
-    },
-  });
-  const body = (await res.json()) as ResponsesBody;
-  const usage = usageOf(body);
-  if (body.status === "incomplete") {
-    throw new OpenAIError(
-      502,
-      `Respuesta incompleta del modelo (${body.incomplete_details?.reason ?? "motivo desconocido"}).`,
-      true,
-    );
-  }
-  const { text, refusal } = extractText(body);
-  if (refusal) throw new OpenAIError(422, `El modelo rechazó la petición: ${refusal}`, false);
-  try {
-    return { data: JSON.parse(text) as T, usage };
-  } catch {
-    throw new OpenAIError(502, "La respuesta del modelo no es JSON válido.", true);
+  let maxOutputTokens = req.maxOutputTokens;
+  let effort = req.reasoningEffort;
+  let usage: OpenAIUsage = { inputTokens: 0, cachedInputTokens: 0, outputTokens: 0 };
+  for (let attempt = 0; ; attempt++) {
+    const res = await openaiFetch(config, "/responses", {
+      signal: req.signal,
+      safetyId: req.safetyId,
+      json: {
+        model: req.model,
+        input: [
+          { role: "system", content: req.system },
+          { role: "user", content: req.user },
+        ],
+        ...(effort && effort !== "none" ? { reasoning: { effort } } : {}),
+        ...(maxOutputTokens ? { max_output_tokens: maxOutputTokens } : {}),
+        text: { format: { type: "json_schema", name: req.schema.name, strict: true, schema: req.schema.schema } },
+        store: false,
+        stream: true,
+      },
+    });
+    const body = await readResponsesStream(res);
+    usage = addUsage(usage, usageOf(body));
+    if (body.status === "incomplete") {
+      const reason = body.incomplete_details?.reason ?? "motivo desconocido";
+      const canExpand = reason === "max_output_tokens" && attempt < 2 && (maxOutputTokens ?? 0) < MAX_OUTPUT_TOKENS_CAP;
+      if (canExpand) {
+        maxOutputTokens = Math.min(MAX_OUTPUT_TOKENS_CAP, (maxOutputTokens ?? 8000) * 2);
+        effort = lowerEffort(effort);
+        if (config.appEnv !== "production") {
+          console.warn(
+            `[openai] incomplete (${reason}); retrying with max_output_tokens=${maxOutputTokens}, effort=${effort}`,
+          );
+        }
+        continue;
+      }
+      throw new OpenAIError(502, `Respuesta incompleta del modelo (${reason}).`, true);
+    }
+    if (body.status === "failed") throw new OpenAIError(502, "El modelo no pudo completar la respuesta.", true);
+    const { text, refusal } = extractText(body);
+    if (refusal) throw new OpenAIError(422, `El modelo rechazó la petición: ${refusal}`, false);
+    try {
+      return { data: JSON.parse(text) as T, usage };
+    } catch {
+      throw new OpenAIError(502, "La respuesta del modelo no es JSON válido.", true);
+    }
   }
 }
 

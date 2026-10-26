@@ -36,7 +36,7 @@ export default defineConfig({
         command: "npm run dev",
         url: "http://localhost:3000/login",
         reuseExistingServer: true,
-        timeout: 120_000,
+        timeout: 180_000,
         env: { NODE_USE_ENV_PROXY: process.env.NODE_USE_ENV_PROXY ?? "" },
       },
 });
