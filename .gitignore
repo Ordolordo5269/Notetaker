@@ -46,3 +46,4 @@ next-env.d.ts
 /playwright-report
 /tests/e2e/.artifacts
 .scratch
+wrangler.preview.jsonc

@@ -22,19 +22,25 @@ Las migraciones viven en `migrations/*.sql` y son la fuente de verdad del esquem
 
 ## 3. Secretos y variables
 
-| Nombre | Tipo | Obligatorio | Descripción |
-| --- | --- | --- | --- |
-| `OPENAI_API_KEY` | secreto | sí | Clave de proyecto de OpenAI. Solo se usa en el servidor. |
+| Nombre                  | Tipo          | Obligatorio | Descripción                                                                            |
+| ----------------------- | ------------- | ----------- | -------------------------------------------------------------------------------------- |
+| `OPENAI_API_KEY`        | secreto       | sí          | Clave de proyecto de OpenAI. Solo se usa en el servidor.                               |
 | `ALLOWED_SIGNUP_EMAILS` | secreto o var | recomendado | Correos autorizados a crear cuenta (`a@b.c,*@uni.es`). Vacío = solo la primera cuenta. |
-| `OPENAI_BASE_URL` | var | no | Endpoint alternativo (regional). |
-| `OPENAI_PROXY_AUTH` | var | no | `1` si un proxy de salida inyecta la credencial. |
-| `OPENAI_*_MODEL` | var | no | Modelos por tarea; valores por defecto en `wrangler.jsonc`. |
-| `APP_ENV` | var | no | `production` activa los límites de registro más estrictos. |
+| `OPENAI_BASE_URL`       | var           | no          | Endpoint alternativo (regional).                                                       |
+| `OPENAI_PROXY_AUTH`     | var           | no          | `1` si un proxy de salida inyecta la credencial.                                       |
+| `OPENAI_*_MODEL`        | var           | no          | Modelos por tarea; valores por defecto en `wrangler.jsonc`.                            |
+| `APP_ENV`               | var           | no          | `production` activa los límites de registro más estrictos.                             |
 
 ```bash
 npx wrangler secret put OPENAI_API_KEY
 npx wrangler secret put ALLOWED_SIGNUP_EMAILS
 ```
+
+Notas:
+
+- El Worker se compila con la bandera `global_fetch_strictly_public`: solo puede hacer peticiones salientes a hosts públicos. Si configuras `OPENAI_BASE_URL`, debe ser un endpoint público (no una IP privada ni `localhost`).
+- `OPENAI_PROXY_AUTH=1` existe para entornos corporativos con proxy que inyecta la credencial; en Cloudflare usa siempre `OPENAI_API_KEY` como secreto.
+- Las variables `OPENAI_*_MODEL` permiten cambiar de modelo sin tocar código; la tabla de precios (`src/lib/cost/pricing.ts`) indica la fecha en que se comprobaron los precios y debe revisarse al cambiar de modelo.
 
 ## 4. Límites del plan
 
@@ -58,6 +64,16 @@ npm run deploy
 2. En **Ajustes**, define límites de gasto mensual y por tarea.
 3. Haz una grabación corta de prueba y comprueba en el panel de Cloudflare (D1 → tablas `audio_chunks`, `transcript_segments`) que los datos llegan.
 
-## 7. Mantenimiento
+## 7. Verificación previa al despliegue
+
+```bash
+npm run typecheck && npm run lint && npm test
+npm run preview                                  # build OpenNext + wrangler dev en workerd (http://localhost:8787)
+E2E_BASE_URL=http://localhost:8787 npm run test:e2e -- tests/e2e/documents.spec.ts tests/e2e/security.spec.ts
+```
+
+En la vista previa, D1, R2 y el Workflow son emulaciones locales de Miniflare con la misma semántica que producción (incluido el límite de 100 parámetros por consulta de D1 y los pasos duraderos del Workflow). La extracción de PDF/DOCX/PPTX, el cifrado de contraseñas y la generación de apuntes se han comprobado en este runtime (véase `docs/PROGRESS.md`).
+
+## 8. Mantenimiento
 
 El cron diario (`17 3 * * *`) borra sesiones de autenticación caducadas, marca como fallidos los trabajos que dejaron de responder y aplica la retención de audio configurada por cada usuario. Puedes ejecutarlo manualmente con `npx wrangler dev --test-scheduled` y una petición a `/__scheduled`.

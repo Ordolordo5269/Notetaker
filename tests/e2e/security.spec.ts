@@ -84,10 +84,7 @@ test.describe("per-user isolation and request hardening", () => {
     expect(crossOrigin.status()).toBe(403);
     expect((await request.get("/api/dashboard")).status()).toBe(401);
     expect((await request.get("/api/sessions/00000000-0000-0000-0000-000000000000")).status()).toBe(401);
-    const secret = await request.post("/api/realtime/client-secret", {
-      data: {},
-      headers: { origin: "http://localhost:3000" },
-    });
+    const secret = await request.post("/api/realtime/client-secret", { data: {}, headers: originHeaders(page) });
     expect(secret.status()).toBe(401);
   });
 

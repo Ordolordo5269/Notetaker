@@ -1,5 +1,5 @@
 // Creating and dispatching processing jobs.
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, lt, or, sql, type SQL } from "drizzle-orm";
 import type { Db } from "@/lib/db";
 import { lectureSessions, processingJobs, type JobType } from "@/lib/db/schema";
 import { conflict, notFound } from "@/lib/errors";
@@ -21,7 +21,52 @@ export interface JobView {
   result: Record<string, unknown> | null;
 }
 
+/** A job without a heartbeat for this long is considered dead (a Workflow instance that was lost). */
+const STALL_MS = 10 * 60 * 1000;
+const STALL_MESSAGE =
+  "El proceso dejó de responder durante más de 10 minutos y se marcó como fallido. Puedes reintentarlo: los pasos ya completados se reutilizan.";
+
+/**
+ * Mark stalled jobs as failed before returning them, so the interface never
+ * shows a dead job as "running" until the daily maintenance cron runs.
+ */
+async function failStalledJobs(db: Db, where: SQL | undefined): Promise<void> {
+  const now = Date.now();
+  const stalled = await db
+    .select({ id: processingJobs.id, sessionId: processingJobs.sessionId })
+    .from(processingJobs)
+    .where(
+      and(
+        where,
+        or(
+          and(
+            eq(processingJobs.status, "running"),
+            lt(
+              sql`coalesce(${processingJobs.heartbeatAt}, ${processingJobs.startedAt}, ${processingJobs.createdAt})`,
+              now - STALL_MS,
+            ),
+          ),
+          and(eq(processingJobs.status, "queued"), lt(processingJobs.createdAt, now - STALL_MS)),
+        ),
+      ),
+    );
+  if (!stalled.length) return;
+  await db
+    .update(processingJobs)
+    .set({ status: "failed", error: STALL_MESSAGE, finishedAt: now, updatedAt: now })
+    .where(
+      inArray(
+        processingJobs.id,
+        stalled.map((j) => j.id),
+      ),
+    );
+  for (const sessionId of new Set(stalled.map((j) => j.sessionId).filter((x): x is string => Boolean(x)))) {
+    await settleSessionProcessing(db, sessionId);
+  }
+}
+
 export async function listJobs(db: Db, userId: string, sessionId: string, limit = 20): Promise<JobView[]> {
+  await failStalledJobs(db, and(eq(processingJobs.userId, userId), eq(processingJobs.sessionId, sessionId)));
   return db
     .select({
       id: processingJobs.id,
@@ -44,6 +89,7 @@ export async function listJobs(db: Db, userId: string, sessionId: string, limit 
 }
 
 export async function getJob(db: Db, userId: string, jobId: string): Promise<JobView> {
+  await failStalledJobs(db, and(eq(processingJobs.id, jobId), eq(processingJobs.userId, userId)));
   const rows = await db
     .select({
       id: processingJobs.id,

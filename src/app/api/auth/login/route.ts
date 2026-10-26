@@ -21,7 +21,8 @@ export const POST = publicRoute(async ({ req, db }) => {
   const keyEmail = `login:${email}`;
   const keyIp = `login-ip:${clientIp(req)}`;
   const okEmail = await consumeAttempt(db, keyEmail, 8, 15 * 60 * 1000);
-  const okIp = await consumeAttempt(db, keyIp, 30, 15 * 60 * 1000);
+  // Per-IP ceiling is generous on purpose: a campus NAT puts hundreds of students behind one address.
+  const okIp = await consumeAttempt(db, keyIp, 200, 15 * 60 * 1000);
   if (!okEmail || !okIp) {
     throw new AppError(429, "rate_limited", "Demasiados intentos. Espera 15 minutos antes de reintentar.");
   }

@@ -8,7 +8,7 @@ import { Badge, Callout, EmptyState, Skeleton, Spinner } from "@/components/ui/m
 import { api, errorMessage, parseApiError } from "@/lib/api/client";
 import { cn } from "@/lib/cn";
 import type { AttachmentView } from "@/lib/data/attachments";
-import { UNIT_LABEL } from "@/lib/documents/extract";
+import { UNIT_LABEL } from "@/lib/documents/labels";
 import { formatDateTime } from "@/lib/time";
 
 const STATUS: Record<

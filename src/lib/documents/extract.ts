@@ -130,8 +130,4 @@ export function detectKind(fileName: string, head: Uint8Array): AttachmentKind |
   return null;
 }
 
-export const UNIT_LABEL: Record<AttachmentKind, "página" | "diapositiva" | "fragmento"> = {
-  pdf: "página",
-  pptx: "diapositiva",
-  docx: "fragmento",
-};
+export { UNIT_LABEL } from "./labels";
