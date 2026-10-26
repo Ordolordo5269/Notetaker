@@ -114,9 +114,9 @@ export function ExamMode({
         <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-accent-soft text-accent">
           <Trophy className="size-6" />
         </div>
-        <h3 className="text-[20px] font-semibold tracking-[-0.015em]">
+        <h2 className="text-[20px] font-semibold tracking-[-0.015em]">
           {total ? "Sesión terminada" : "No quedan preguntas"}
-        </h3>
+        </h2>
         {total ? (
           <p className="mt-1 text-muted">
             {total} {total === 1 ? "pregunta" : "preguntas"} · puntuación media {Math.round(avg * 100)}%

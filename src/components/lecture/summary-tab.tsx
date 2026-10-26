@@ -72,9 +72,9 @@ export function SummaryTab({
       {!running && (summaries.length === 0 || showGenerate) ? (
         <div className="max-w-lg space-y-4 rounded-2xl border border-border bg-surface p-6 shadow-soft">
           <div>
-            <h3 className="text-[17px] font-semibold tracking-[-0.01em]">
+            <h2 className="text-[17px] font-semibold tracking-[-0.01em]">
               {summaries.length ? "Regenerar los resúmenes" : "Generar los tres modos de repaso"}
-            </h3>
+            </h2>
             <p className="mt-1 text-sm text-muted">
               Repaso rápido, repaso completo y última hora, derivados de los apuntes v{notes.versionNumber}.
             </p>

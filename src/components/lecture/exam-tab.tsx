@@ -165,9 +165,9 @@ export function ExamTab({ sessionId, onSeek }: { sessionId: string; onSeek: (ms:
   const form = (
     <div className="max-w-xl space-y-5 rounded-2xl border border-border bg-surface p-6 shadow-soft">
       <div>
-        <h3 className="text-[17px] font-semibold tracking-[-0.01em]">
+        <h2 className="text-[17px] font-semibold tracking-[-0.01em]">
           {list.length ? "Generar más preguntas" : "Generar preguntas de examen"}
-        </h3>
+        </h2>
         <p className="mt-1 text-sm text-muted">
           Preguntas basadas solo en lo explicado en clase (y en los apuntes si existen). Las que requieran material no
           visto se marcan.

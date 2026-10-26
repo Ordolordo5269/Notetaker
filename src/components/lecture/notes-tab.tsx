@@ -62,7 +62,7 @@ function GenerateNotesPanel({ sessionId, compact }: { sessionId: string; compact
           <div className="mb-3 flex size-10 items-center justify-center rounded-full bg-accent-soft text-accent">
             <FileText className="size-5" />
           </div>
-          <h3 className="text-[17px] font-semibold tracking-[-0.01em]">Generar apuntes completos</h3>
+          <h2 className="text-[17px] font-semibold tracking-[-0.01em]">Generar apuntes completos</h2>
           <p className="mt-1 text-sm leading-relaxed text-muted">
             La IA analiza toda la clase por bloques, construye un índice global y redacta cada apartado citando los
             tramos de la grabación. Suele tardar varios minutos en una clase de 90 minutos.

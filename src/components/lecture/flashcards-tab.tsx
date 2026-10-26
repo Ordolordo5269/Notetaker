@@ -59,9 +59,9 @@ export function FlashcardsTab({ sessionId, onSeek }: { sessionId: string; onSeek
   const form = (
     <div className="max-w-lg space-y-4 rounded-2xl border border-border bg-surface p-6 shadow-soft">
       <div>
-        <h3 className="text-[17px] font-semibold tracking-[-0.01em]">
+        <h2 className="text-[17px] font-semibold tracking-[-0.01em]">
           {list.length ? "Generar más tarjetas" : "Generar flashcards"}
-        </h3>
+        </h2>
         <p className="mt-1 text-sm text-muted">
           Una idea por tarjeta, sin repetir conceptos ya existentes en la asignatura. Se repasan con repetición
           espaciada.

@@ -7,6 +7,8 @@ import { fixturePath, originHeaders, seedLecture, signUpViaApi } from "./helpers
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"];
 
 async function expectAccessible(page: import("@playwright/test").Page, name: string) {
+  // Audit the settled page (queries resolved, panels rendered), not a loading skeleton.
+  await page.waitForLoadState("networkidle");
   await page.waitForTimeout(300);
   const results = await new AxeBuilder({ page }).withTags(TAGS).analyze();
   const summary = results.violations.map(
