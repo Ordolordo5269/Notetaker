@@ -11,7 +11,6 @@ import { newId } from "@/lib/ids";
 import { createEmbeddings } from "@/lib/openai/client";
 import { recordUsage } from "@/lib/cost/usage";
 import { loadSourceSegments } from "@/lib/data/documents";
-import { toFtsQuery } from "@/lib/data/search";
 import { estimateTokens } from "@/lib/cost/pricing";
 
 export interface RetrievedSource {
@@ -24,6 +23,7 @@ export interface RetrievedSource {
   endMs: number | null;
   attachmentId: string | null;
   fileName: string | null;
+  attachmentKind: "pdf" | "docx" | "pptx" | null;
   pageNumber: number | null;
   sectionKey: string | null;
   score: number;
@@ -167,12 +167,98 @@ function toFloat32(buf: Buffer | Uint8Array): Float32Array {
 
 const PAGE_RE = /\b(?:diapositiva|slide|p[aá]gina|page|p\.)\s*(\d{1,3})\b/i;
 
+// Function words that carry no retrieval signal (ES + EN). Kept short on purpose.
+const STOPWORDS = new Set(
+  (
+    "a al algo ante como con cuál cuáles cual cuales cuando de del desde donde dónde el ella ellos en entre era es esa ese eso esta este esto fue ha han hay la las le lo los me mi muy más nos o para pero por que qué quien quién se ser si sin sobre su sus también te tiene un una unas uno unos y ya explicó explica explicado dijo dice habló profesor profesora clase " +
+    "a an and are as at be by did do does for from had has have how in into is it its of on or said say says that the their there these this those to was were what when where which who why will with you your lecture professor teacher explain explained"
+  ).split(/\s+/),
+);
+
+/** Content terms of a question: lowercase, no stopwords, deduplicated, at most `max`. */
+export function contentTerms(input: string, max = 12): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of input.toLowerCase().split(/[^\p{L}\p{N}]+/u)) {
+    const t = raw.trim();
+    if (!t || seen.has(t) || STOPWORDS.has(t)) continue;
+    if (t.length < 2 && !/^\d$/.test(t)) continue;
+    seen.add(t);
+    out.push(t);
+    if (out.length >= max) break;
+  }
+  return out;
+}
+
+/** FTS5 query that ranks by how many content terms match (OR + prefix), instead of requiring all of them. */
+function ftsAny(terms: string[]): string | null {
+  if (!terms.length) return null;
+  return terms.map((t) => `"${t.replace(/"/g, "")}"*`).join(" OR ");
+}
+
 export interface RetrievalOptions {
   k?: number;
   /** Restrict to these source types. */
   types?: ("transcript" | "attachment" | "notes")[];
+  /** Minimum number of transcript windows in the result when the lecture has any (the lecture is the primary source). */
+  minTranscript?: number;
 }
 
+type SourceType = "transcript" | "attachment" | "notes";
+
+async function lexicalCandidates(
+  db: Db,
+  userId: string,
+  sessionId: string,
+  types: SourceType[],
+  text: string,
+  limit = 30,
+): Promise<string[]> {
+  const fts = ftsAny(contentTerms(text));
+  if (!fts) return [];
+  const rows = await db.all<{ id: string; rank: number }>(sql`
+    SELECT ds.id AS id, bm25(document_sources_fts) AS rank
+    FROM document_sources_fts
+    JOIN document_sources ds ON ds.rowid = document_sources_fts.rowid
+    WHERE document_sources_fts MATCH ${fts}
+      AND ds.session_id = ${sessionId} AND ds.user_id = ${userId}
+      AND ds.source_type IN (${sql.join(
+        types.map((t) => sql`${t}`),
+        sql`, `,
+      )})
+    ORDER BY rank LIMIT ${limit}
+  `);
+  return rows.map((r) => r.id);
+}
+
+async function semanticCandidates(
+  config: AppConfig,
+  text: string,
+  rows: { id: string; sourceType: SourceType; embedding: Buffer | Uint8Array | null }[],
+  types: SourceType[],
+  limit = 30,
+): Promise<string[]> {
+  try {
+    const { vectors } = await createEmbeddings(config, [text.slice(0, 2000)]);
+    const q = vectors[0];
+    if (!q) return [];
+    return rows
+      .filter((r) => r.embedding && types.includes(r.sourceType))
+      .map((r) => ({ id: r.id, score: cosine(q, toFloat32(r.embedding!)) }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit)
+      .map((r) => r.id);
+  } catch {
+    return []; // embeddings unavailable: lexical only
+  }
+}
+
+/**
+ * Hybrid retrieval: lexical (FTS5, any-term) + semantic candidates fused with
+ * reciprocal rank fusion. A question that names a slide/page forces that page
+ * in and runs a second, page-anchored pass so the transcript windows where the
+ * professor talked about that slide's content come along too.
+ */
 export async function retrieve(
   db: Db,
   config: AppConfig,
@@ -181,75 +267,71 @@ export async function retrieve(
   query: string,
   opts: RetrievalOptions = {},
 ): Promise<RetrievedSource[]> {
-  const k = opts.k ?? 10;
-  const types = opts.types ?? ["transcript", "attachment", "notes"];
+  const k = opts.k ?? 12;
+  const types: SourceType[] = opts.types ?? ["transcript", "attachment", "notes"];
+  const minTranscript = opts.minTranscript ?? (types.includes("transcript") ? Math.min(4, Math.floor(k / 3)) : 0);
   const where = and(
     eq(documentSources.sessionId, sessionId),
     eq(documentSources.userId, userId),
     inArray(documentSources.sourceType, types),
   );
+  // All of the session's vectors fit in memory (a 3-hour lecture is ~250 windows of 512 floats).
+  const vectorRows = await db
+    .select({ id: documentSources.id, sourceType: documentSources.sourceType, embedding: documentSources.embedding })
+    .from(documentSources)
+    .where(where);
+  const typeOf = new Map(vectorRows.map((r) => [r.id, r.sourceType]));
 
-  // Lexical candidates.
-  const fts = toFtsQuery(query);
-  const lexical = fts
-    ? await db.all<{ id: string; rank: number }>(sql`
-        SELECT ds.id AS id, bm25(document_sources_fts) AS rank
-        FROM document_sources_fts
-        JOIN document_sources ds ON ds.rowid = document_sources_fts.rowid
-        WHERE document_sources_fts MATCH ${fts}
-          AND ds.session_id = ${sessionId} AND ds.user_id = ${userId}
-          AND ds.source_type IN (${sql.join(
-            types.map((t) => sql`${t}`),
-            sql`, `,
-          )})
-        ORDER BY rank LIMIT 30
-      `)
-    : [];
-
-  // Semantic candidates (all of the session's vectors fit in memory).
-  let semantic: { id: string; score: number }[] = [];
-  try {
-    const { vectors } = await createEmbeddings(config, [query.slice(0, 2000)]);
-    const q = vectors[0];
-    if (q) {
-      const rows = await db
-        .select({ id: documentSources.id, embedding: documentSources.embedding })
-        .from(documentSources)
-        .where(where);
-      semantic = rows
-        .filter((r) => r.embedding)
-        .map((r) => ({ id: r.id, score: cosine(q, toFloat32(r.embedding!)) }))
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 30);
-    }
-  } catch {
-    /* embeddings unavailable: lexical only */
-  }
-
-  // Reciprocal rank fusion.
   const fused = new Map<string, number>();
-  lexical.forEach((r, i) => fused.set(r.id, (fused.get(r.id) ?? 0) + 1 / (60 + i)));
-  semantic.forEach((r, i) => fused.set(r.id, (fused.get(r.id) ?? 0) + 1 / (60 + i)));
+  const fuse = (ids: string[], weight = 1) =>
+    ids.forEach((id, i) => fused.set(id, (fused.get(id) ?? 0) + weight / (60 + i)));
 
-  // Explicit slide/page references always come along.
+  const [lexical, semantic] = await Promise.all([
+    lexicalCandidates(db, userId, sessionId, types, query),
+    semanticCandidates(config, query, vectorRows, types),
+  ]);
+  fuse(lexical);
+  fuse(semantic);
+
+  // Explicit slide/page references always come along, and anchor a second pass.
   const pageMatch = PAGE_RE.exec(query);
-  const forcedIds: string[] = [];
-  if (pageMatch) {
+  const forced = new Set<string>();
+  if (pageMatch && types.includes("attachment")) {
     const page = Number(pageMatch[1]);
     const pages = await db
-      .select({ id: documentSources.id })
+      .select({ id: documentSources.id, text: documentSources.text })
       .from(documentSources)
       .where(and(where, eq(documentSources.sourceType, "attachment"), eq(documentSources.pageNumber, page)));
     for (const p of pages) {
-      forcedIds.push(p.id);
+      forced.add(p.id);
       fused.set(p.id, (fused.get(p.id) ?? 0) + 1);
+    }
+    const anchorTypes = types.filter((t) => t !== "attachment");
+    const anchor = pages
+      .map((p) => p.text)
+      .join("\n")
+      .slice(0, 1200);
+    if (anchor && anchorTypes.length) {
+      const [lex2, sem2] = await Promise.all([
+        lexicalCandidates(db, userId, sessionId, anchorTypes, anchor, 20),
+        semanticCandidates(config, anchor, vectorRows, anchorTypes, 20),
+      ]);
+      fuse(lex2, 0.9);
+      fuse(sem2, 0.9);
     }
   }
 
-  const ids = [...fused.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, k)
-    .map(([id]) => id);
+  const ranked = [...fused.entries()].sort((a, b) => b[1] - a[1]).map(([id]) => id);
+  let ids = ranked.slice(0, k);
+  // Transcript quota: the lecture itself must be represented when it matched at all.
+  const transcriptRanked = ranked.filter((id) => typeOf.get(id) === "transcript");
+  const have = ids.filter((id) => typeOf.get(id) === "transcript").length;
+  if (have < minTranscript && transcriptRanked.length > have) {
+    const extra = transcriptRanked.filter((id) => !ids.includes(id)).slice(0, minTranscript - have);
+    const keep = ids.filter((id) => typeOf.get(id) === "transcript" || forced.has(id));
+    const others = ids.filter((id) => !keep.includes(id));
+    ids = [...keep, ...others.slice(0, Math.max(0, k - keep.length - extra.length)), ...extra];
+  }
   if (!ids.length) return [];
   const rows = await db
     .select({
@@ -264,6 +346,7 @@ export async function retrieve(
       pageNumber: documentSources.pageNumber,
       sectionKey: documentSources.sectionKey,
       fileName: lectureAttachments.fileName,
+      attachmentKind: lectureAttachments.kind,
     })
     .from(documentSources)
     .leftJoin(lectureAttachments, eq(lectureAttachments.id, documentSources.attachmentId))

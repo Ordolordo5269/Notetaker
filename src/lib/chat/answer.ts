@@ -61,7 +61,10 @@ function sourceLabel(s: RetrievedSource): string {
   if (s.sourceType === "transcript" && s.startMs !== null && s.endMs !== null) {
     return `Clase ${formatClock(s.startMs)}–${formatClock(s.endMs)}`;
   }
-  if (s.sourceType === "attachment") return `${s.fileName ?? "Documento"}, p. ${s.pageNumber ?? "?"}`;
+  if (s.sourceType === "attachment") {
+    const unit = s.attachmentKind === "pptx" ? "diap." : s.attachmentKind === "docx" ? "fragm." : "p.";
+    return `${s.fileName ?? "Documento"}, ${unit} ${s.pageNumber ?? "?"}`;
+  }
   return `Apuntes: ${s.sectionKey ?? "sección"}`;
 }
 

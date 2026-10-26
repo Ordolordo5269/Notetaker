@@ -132,6 +132,9 @@ export async function runJob(env: CloudflareEnv, jobId: string, steps: StepRunne
   };
 
   try {
+    // Make sure every pipeline has registered itself, whichever entry point
+    // (API route, Workflow, dev HMR module instance) is running this job.
+    await import("@/lib/jobs/register");
     const handler = getJobHandler(job.jobType);
     if (!handler) throw steps.nonRetryable(`No handler for job type ${job.jobType}`);
     const result = (await handler(ctx)) ?? {};

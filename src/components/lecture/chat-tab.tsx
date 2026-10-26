@@ -160,15 +160,24 @@ export function ChatTab({
   sessionId,
   onSeek,
   onOpenPage,
+  prefill = null,
 }: {
   sessionId: string;
   onSeek: (ms: number) => void;
   onOpenPage: (attachmentId: string, page: number) => void;
+  /** Question handed over from another tab (e.g. "Preguntar" on a slide). A new nonce replaces the draft. */
+  prefill?: { text: string; nonce: number } | null;
 }) {
   const qc = useQueryClient();
   const [conversationId, setConversationId] = React.useState<string | null>(null);
   const [language, setLanguage] = React.useState<NotesLanguage>("auto");
-  const [draft, setDraft] = React.useState("");
+  const [draft, setDraft] = React.useState(prefill?.text ?? "");
+  const [seenPrefill, setSeenPrefill] = React.useState(prefill?.nonce ?? 0);
+  if (prefill && prefill.nonce !== seenPrefill) {
+    // Derived-state adjustment during render (React's recommended pattern), no effect needed.
+    setSeenPrefill(prefill.nonce);
+    setDraft(prefill.text);
+  }
   const [pending, setPending] = React.useState<string | null>(null);
   const bottomRef = React.useRef<HTMLDivElement>(null);
 
@@ -291,6 +300,7 @@ export function ChatTab({
                 }
               }}
               rows={1}
+              autoFocus={Boolean(prefill)}
               placeholder="Escribe tu duda… (Enter para enviar, Mayús+Enter para nueva línea)"
               className="min-h-11 max-h-40 resize-none"
               aria-label="Pregunta"

@@ -44,6 +44,7 @@ import {
 import { formatClock, formatDate, formatDuration } from "@/lib/time";
 import { ChatTab } from "./chat-tab";
 import { ChunkedPlayer, type ChunkMeta, type PlayerHandle } from "./chunked-player";
+import { DocumentsTab } from "./documents-tab";
 import { ExamTab } from "./exam-tab";
 import { FlashcardsTab } from "./flashcards-tab";
 import { NotesTab } from "./notes-tab";
@@ -110,6 +111,9 @@ export function LecturePage({ id }: { id: string }) {
   const [tab, setTab] = React.useState(params.get("tab") ?? "transcript");
   const [editOpen, setEditOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
+  // Cross-tab hand-offs: a chat citation opens a document page; "Preguntar" on a page prefills the chat.
+  const [focusPage, setFocusPage] = React.useState<{ attachmentId: string; page: number } | null>(null);
+  const [chatPrefill, setChatPrefill] = React.useState<{ text: string; nonce: number } | null>(null);
 
   // Deep link from search: /lectures/:id?t=<ms>
   const initialSeek = React.useRef<number | null>(params.get("t") ? Number(params.get("t")) : null);
@@ -244,12 +248,31 @@ export function LecturePage({ id }: { id: string }) {
           <TabsTrigger value="exam">Examen</TabsTrigger>
           <TabsTrigger value="flashcards">Flashcards</TabsTrigger>
           <TabsTrigger value="chat">Chat</TabsTrigger>
+          <TabsTrigger value="documents">Documentos</TabsTrigger>
         </TabsList>
         <TabsContent value="flashcards" className="pt-5">
           <FlashcardsTab sessionId={id} onSeek={seek} />
         </TabsContent>
         <TabsContent value="chat" className="pt-5">
-          <ChatTab sessionId={id} onSeek={seek} onOpenPage={() => setTab("documents")} />
+          <ChatTab
+            sessionId={id}
+            onSeek={seek}
+            prefill={chatPrefill}
+            onOpenPage={(attachmentId, page) => {
+              setFocusPage({ attachmentId, page });
+              setTab("documents");
+            }}
+          />
+        </TabsContent>
+        <TabsContent value="documents" className="pt-5">
+          <DocumentsTab
+            sessionId={id}
+            focus={focusPage}
+            onAskAboutPage={(question) => {
+              setChatPrefill({ text: question, nonce: Date.now() });
+              setTab("chat");
+            }}
+          />
         </TabsContent>
         <TabsContent value="notes" className="pt-5">
           <NotesTab sessionId={id} lecture={l} onSeek={seek} />
