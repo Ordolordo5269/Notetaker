@@ -8,13 +8,27 @@
 import type { AppConfig } from "@/lib/env";
 import { AppError } from "@/lib/errors";
 
+/**
+ * Upstream OpenAI failures are reported to the browser as 502 (not the user's
+ * fault, never their session): an invalid server key must not look like a
+ * 401 of our own authentication. Only a refusal keeps its 422.
+ */
 export class OpenAIError extends AppError {
+  public readonly upstreamStatus: number;
   constructor(
     status: number,
     message: string,
     public readonly retryable: boolean,
   ) {
-    super(status >= 500 || status === 429 ? 502 : status, "openai_error", message);
+    const auth = status === 401 || status === 403;
+    super(
+      status === 422 ? 422 : 502,
+      auth ? "openai_auth" : "openai_error",
+      auth
+        ? "La clave de OpenAI configurada en el servidor no es válida o no tiene permisos. Revisa el secreto OPENAI_API_KEY."
+        : message,
+    );
+    this.upstreamStatus = status;
     this.name = "OpenAIError";
   }
 }
