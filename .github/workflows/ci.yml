@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  WRANGLER_SEND_METRICS: "false"
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  checks:
+    name: Typecheck, lint, unit and end-to-end tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      # The recording suite calls the real transcription API; it only runs when the secret is configured.
+      HAS_OPENAI: ${{ secrets.OPENAI_API_KEY != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - name: Local secrets for the dev server
+        run: |
+          cat > .dev.vars <<'VARS'
+          NEXTJS_ENV=development
+          APP_ENV=development
+          ALLOWED_SIGNUP_EMAILS=*
+          VARS
+          if [ -n "${{ secrets.OPENAI_API_KEY }}" ]; then echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .dev.vars; fi
+      - name: Apply D1 migrations to the local emulator
+        run: npm run db:migrate:local
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+      - name: End-to-end tests without AI cost (documents, security)
+        run: npx playwright test tests/e2e/documents.spec.ts tests/e2e/security.spec.ts
+      - name: End-to-end recording test (real transcription API)
+        if: env.HAS_OPENAI == 'true'
+        run: npx playwright test tests/e2e/recording.spec.ts
+      - name: Upload Playwright artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            tests/e2e/.artifacts
+            playwright-report
+          if-no-files-found: ignore
+          retention-days: 7
+
+  build:
+    name: Production build for Cloudflare Workers
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: OpenNext build (next build + worker bundle)
+        run: npm run cf:build
+      - name: Report bundle size
+        run: du -sh .open-next/worker.js .open-next/assets | sed 's/^/  /'
