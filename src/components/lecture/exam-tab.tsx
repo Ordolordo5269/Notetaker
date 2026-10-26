@@ -13,6 +13,7 @@ import type { SourceRef } from "@/lib/db/schema";
 import type { JobRequest } from "@/lib/jobs/requests";
 import { QUESTION_TYPE_LABEL } from "@/lib/notes/prompts";
 import { formatClock } from "@/lib/time";
+import { ExamMode } from "./exam-mode";
 import { Markdown } from "./markdown";
 import { EstimateLine, LanguageSelect, LaunchJobButton, useDefaultLanguage, type NotesLanguage } from "./generation";
 import { activeJob, JobFailure, JobProgress, latestJob, useJobs } from "./job-progress";
@@ -135,6 +136,8 @@ function QuestionCard({ q, onSeek }: { q: QuestionView; onSeek: (ms: number) => 
 }
 
 export function ExamTab({ sessionId, onSeek }: { sessionId: string; onSeek: (ms: number) => void }) {
+  const [mode, setMode] = React.useState<"list" | "exam">("list");
+  const [examTypes, setExamTypes] = React.useState<QType[]>(TYPES);
   const questions = useQuestions(sessionId);
   const jobs = useJobs(sessionId);
   const defaultLanguage = useDefaultLanguage();
@@ -211,9 +214,51 @@ export function ExamTab({ sessionId, onSeek }: { sessionId: string; onSeek: (ms:
     </div>
   );
 
+  if (mode === "exam") {
+    return <ExamMode sessionId={sessionId} types={examTypes} onExit={() => setMode("list")} onSeek={onSeek} />;
+  }
+
   return (
     <div className="space-y-6">
       {running ? <JobProgress job={running} sessionId={sessionId} /> : null}
+      {list.length && !running && !showGenerate ? (
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-surface p-4 shadow-soft">
+          <div className="min-w-0 flex-1">
+            <p className="text-[15px] font-medium">Modo examen</p>
+            <p className="text-[13px] text-muted">
+              Una pregunta cada vez, sin ver la solución hasta responder. Prioriza lo que fallas.
+            </p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {byType.map(([t]) => (
+                <label
+                  key={t}
+                  className={cn(
+                    "inline-flex cursor-pointer items-center gap-1.5 rounded-md border px-2 py-1 text-[12.5px]",
+                    examTypes.includes(t) ? "border-accent bg-accent-soft/50" : "border-border text-muted",
+                  )}
+                >
+                  <input
+                    type="checkbox"
+                    className="sr-only"
+                    checked={examTypes.includes(t)}
+                    onChange={(e) =>
+                      setExamTypes(e.target.checked ? [...examTypes, t] : examTypes.filter((x) => x !== t))
+                    }
+                  />
+                  {QUESTION_TYPE_LABEL[t]}
+                </label>
+              ))}
+            </div>
+          </div>
+          <Button
+            variant="primary"
+            disabled={!examTypes.some((t) => byType.some(([b]) => b === t))}
+            onClick={() => setMode("exam")}
+          >
+            <GraduationCap /> Empezar
+          </Button>
+        </div>
+      ) : null}
       {last && (last.status === "failed" || last.status === "cancelled") ? (
         <JobFailure job={last} sessionId={sessionId} />
       ) : null}

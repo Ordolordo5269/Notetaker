@@ -42,8 +42,10 @@ import {
   type CleanableSegment,
 } from "@/lib/transcription/clean";
 import { formatClock, formatDate, formatDuration } from "@/lib/time";
+import { ChatTab } from "./chat-tab";
 import { ChunkedPlayer, type ChunkMeta, type PlayerHandle } from "./chunked-player";
 import { ExamTab } from "./exam-tab";
+import { FlashcardsTab } from "./flashcards-tab";
 import { NotesTab } from "./notes-tab";
 import { SummaryTab } from "./summary-tab";
 
@@ -240,7 +242,15 @@ export function LecturePage({ id }: { id: string }) {
           <TabsTrigger value="notes">Apuntes</TabsTrigger>
           <TabsTrigger value="summary">Resumen</TabsTrigger>
           <TabsTrigger value="exam">Examen</TabsTrigger>
+          <TabsTrigger value="flashcards">Flashcards</TabsTrigger>
+          <TabsTrigger value="chat">Chat</TabsTrigger>
         </TabsList>
+        <TabsContent value="flashcards" className="pt-5">
+          <FlashcardsTab sessionId={id} onSeek={seek} />
+        </TabsContent>
+        <TabsContent value="chat" className="pt-5">
+          <ChatTab sessionId={id} onSeek={seek} onOpenPage={() => setTab("documents")} />
+        </TabsContent>
         <TabsContent value="notes" className="pt-5">
           <NotesTab sessionId={id} lecture={l} onSeek={seek} />
         </TabsContent>

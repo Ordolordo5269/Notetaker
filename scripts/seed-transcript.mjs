@@ -35,7 +35,7 @@ async function call(method, p, body) {
 let signedUp = true;
 try {
   await call("POST", "/api/auth/signup", { email, password });
-} catch (err) {
+} catch {
   signedUp = false;
   await call("POST", "/api/auth/login", { email, password });
 }

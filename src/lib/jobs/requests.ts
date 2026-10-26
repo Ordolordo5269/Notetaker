@@ -100,6 +100,7 @@ export function dedupeKeyFor(sessionId: string, req: JobRequest): string {
 }
 
 export function paramsFor(req: JobRequest): Record<string, unknown> {
-  const { type: _type, ...rest } = req;
-  return rest;
+  const params: Record<string, unknown> = { ...req };
+  delete params.type;
+  return params;
 }

@@ -90,14 +90,22 @@ async function flashcardsHandler(ctx: JobContext): Promise<Record<string, unknow
   await ctx.setStage("Redactando tarjetas");
   const max = Math.min(120, Math.max(5, params.maxCards ?? 40));
   const material = notes
-    ? `APUNTES:\n${notes.content.sections.map((s) => `## ${s.heading}\n${s.markdown}`).join("\n\n").slice(0, 120_000)}`
+    ? `APUNTES:\n${notes.content.sections
+        .map((s) => `## ${s.heading}\n${s.markdown}`)
+        .join("\n\n")
+        .slice(0, 120_000)}`
     : `TRANSCRIPCIÓN:\n${renderRanges(transcript.segments, transcript.blocks, 40_000)}`;
   const created = await ctx.step("cards", async () => {
     const { data, usage } = await createStructured<{ cards: GeneratedCard[] }>(config, {
       model: config.models.fast,
       system: system(language, transcript.dominantLanguage),
       user: `Clase: "${lecture.title}". Genera como máximo ${max} tarjetas.${
-        existing.length ? `\nYa existen tarjetas para estos conceptos (no los repitas): ${existing.map((e) => e.front).slice(0, 80).join(" | ")}` : ""
+        existing.length
+          ? `\nYa existen tarjetas para estos conceptos (no los repitas): ${existing
+              .map((e) => e.front)
+              .slice(0, 80)
+              .join(" | ")}`
+          : ""
       }\n\n${material}`,
       schema: cardsSchema,
       reasoningEffort: "low",
@@ -142,7 +150,10 @@ async function flashcardsHandler(ctx: JobContext): Promise<Record<string, unknow
       if (rows.length >= max) break;
     }
     for (let i = 0; i < rows.length; i += 5) {
-      await ctx.db.insert(flashcards).values(rows.slice(i, i + 5)).onConflictDoNothing();
+      await ctx.db
+        .insert(flashcards)
+        .values(rows.slice(i, i + 5))
+        .onConflictDoNothing();
     }
     return rows.length;
   });

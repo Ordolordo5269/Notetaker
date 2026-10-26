@@ -603,6 +603,11 @@ function refsFromString(raw: string, segments: SourceSegment[]): SourceRef[] {
   }));
 }
 
+/** Canonicalise citation tokens inside free text (prompt, answer, rubric). */
+function canon(text: string | undefined | null, segments: SourceSegment[]): string {
+  return text ? normalizeRefs(text, segments).markdown.trim() : "";
+}
+
 async function examHandler(ctx: JobContext): Promise<Record<string, unknown>> {
   const sessionId = ctx.job.sessionId;
   if (!sessionId) ctx.fail("El trabajo no tiene clase asociada.");
@@ -685,13 +690,17 @@ ${material}`,
             level: qtype === "oral" ? Math.min(4, Math.max(1, Math.round(q.level ?? 1))) : null,
             concept: q.concept.trim().slice(0, 200),
             conceptKey: conceptKey(q.concept),
-            prompt: q.prompt.trim(),
+            prompt: canon(q.prompt, transcript.segments),
             options: qtype === "mcq" ? q.options : null,
             correctOption: qtype === "mcq" ? q.correctOption : null,
-            answer: q.answer.trim(),
-            explanation: q.explanation?.trim() || null,
-            rubric: q.rubric?.length ? q.rubric : null,
-            sourceRefs: refsFromString(q.refs ?? "", transcript.segments),
+            answer: canon(q.answer, transcript.segments),
+            explanation: canon(q.explanation, transcript.segments) || null,
+            rubric: q.rubric?.length ? q.rubric.map((r) => canon(r, transcript.segments)) : null,
+            // Every span cited anywhere in the question becomes a verifiable source.
+            sourceRefs: refsFromString(
+              [q.refs ?? "", q.prompt, q.answer, q.explanation ?? "", ...(q.rubric ?? [])].join("\n"),
+              transcript.segments,
+            ),
             extendsSyllabus: Boolean(q.extendsSyllabus),
             createdAt: now,
           }));
