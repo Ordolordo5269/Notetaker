@@ -8,45 +8,45 @@
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "directory": ".open-next/assets",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
   },
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
-      "service": "studyflow"
-    }
+      "service": "studyflow",
+    },
   ],
   // Heavy steps (PDF text extraction, long prompts) need more than the
   // default 30 s of CPU. Requires the Workers Paid plan.
   "limits": {
-    "cpu_ms": 300000
+    "cpu_ms": 300000,
   },
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "studyflow",
       // Replace with the id printed by `wrangler d1 create studyflow`.
-      "database_id": "00000000-0000-0000-0000-000000000000",
-      "migrations_dir": "migrations"
-    }
+      "database_id": "31032912-0922-4a7f-a683-3b2c5061363f",
+      "migrations_dir": "migrations",
+    },
   ],
   "r2_buckets": [
     {
       // Private bucket: audio chunks and attachments. Never public.
       "binding": "FILES",
-      "bucket_name": "studyflow-files"
-    }
+      "bucket_name": "studyflow-files",
+    },
   ],
   "workflows": [
     {
       "name": "studyflow-jobs",
       "binding": "JOBS_WORKFLOW",
-      "class_name": "StudyJobWorkflow"
-    }
+      "class_name": "StudyJobWorkflow",
+    },
   ],
   "triggers": {
     // Daily maintenance: audio retention clean-up and stuck-job recovery.
-    "crons": ["17 3 * * *"]
+    "crons": ["17 3 * * *"],
   },
   "vars": {
     "APP_ENV": "production",
@@ -55,9 +55,9 @@
     "OPENAI_CHAT_MODEL": "gpt-6.1-sol",
     "OPENAI_LIVE_TRANSCRIBE_MODEL": "gpt-live-transcribe",
     "OPENAI_FILE_TRANSCRIBE_MODEL": "gpt-transcribe",
-    "OPENAI_EMBEDDING_MODEL": "text-embedding-3-small"
+    "OPENAI_EMBEDDING_MODEL": "text-embedding-3-small",
   },
   "observability": {
-    "enabled": true
-  }
+    "enabled": true,
+  },
 }

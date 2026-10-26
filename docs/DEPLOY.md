@@ -4,13 +4,22 @@ StudyFlow AI se ejecuta como un único Worker de Cloudflare generado con `@openn
 
 ## 1. Recursos
 
+Para la cuenta de este proyecto los recursos **ya existen** y `wrangler.jsonc` apunta a ellos:
+
+| Recurso | Nombre            | Identificador / región                                                          |
+| ------- | ----------------- | ------------------------------------------------------------------------------- |
+| D1      | `studyflow`       | `31032912-0922-4a7f-a683-3b2c5061363f` (WEUR), esquema `0001_init.sql` aplicado |
+| R2      | `studyflow-files` | bucket privado                                                                  |
+
+Para otra cuenta, créalos así y copia el `database_id` en `wrangler.jsonc`:
+
 ```bash
 npx wrangler login
-npx wrangler d1 create studyflow            # copia el database_id resultante
+npx wrangler d1 create studyflow
 npx wrangler r2 bucket create studyflow-files
 ```
 
-Edita `wrangler.jsonc` y sustituye `database_id` por el identificador real. El bucket R2 **no** debe hacerse público: toda descarga pasa por la aplicación, que comprueba la propiedad.
+El bucket R2 **no** debe hacerse público: toda descarga pasa por la aplicación, que comprueba la propiedad.
 
 ## 2. Esquema de base de datos
 
@@ -49,7 +58,20 @@ Notas:
 
 ## 5. Despliegue
 
+### Opción A: desde GitHub Actions (recomendada)
+
+El flujo `.github/workflows/deploy.yml` aplica las migraciones pendientes, construye con OpenNext y despliega el Worker en cada push a `main` (o a mano desde la pestaña Actions, «Deploy to Cloudflare», «Run workflow»). Necesita estos secretos del repositorio (Settings → Secrets and variables → Actions):
+
+| Secreto                 | Valor                                                                                                                                                                                                           |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CLOUDFLARE_API_TOKEN`  | Token de API creado en el panel de Cloudflare (Mi perfil → Tokens de API) con permisos de cuenta: Workers Scripts: Edit, Workers KV Storage: Edit, D1: Edit, R2: Edit, Workflows: Edit, Account Settings: Read. |
+| `CLOUDFLARE_ACCOUNT_ID` | Identificador de la cuenta (barra lateral del panel de Workers).                                                                                                                                                |
+| `OPENAI_API_KEY`        | Opcional: si existe, el flujo lo guarda como secreto del Worker en cada despliegue.                                                                                                                             |
+
+### Opción B: desde tu equipo
+
 ```bash
+npx wrangler login
 npm run deploy
 ```
 
