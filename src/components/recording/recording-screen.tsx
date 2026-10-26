@@ -463,7 +463,7 @@ function StartPanel({ state, onStart }: { state: SessionState; onStart: (deviceI
       <div className="mb-6 flex size-20 items-center justify-center rounded-full bg-accent-soft text-accent">
         <Mic className="size-8" />
       </div>
-      <h2 className="text-[22px] font-semibold tracking-[-0.015em]">Lista para grabar</h2>
+      <h1 className="text-[22px] font-semibold tracking-[-0.015em]">Lista para grabar</h1>
       <p className="mt-2 text-[15px] leading-relaxed text-muted">
         Coloca el portátil orientado hacia el profesor. La transcripción escribe en el idioma hablado, español o inglés,
         sin traducir.
@@ -536,7 +536,7 @@ function RecoveryPanel({
       <div className="mb-5 flex size-12 items-center justify-center rounded-full bg-warning-soft text-warning">
         <RotateCcw className="size-5" />
       </div>
-      <h2 className="text-[22px] font-semibold tracking-[-0.015em]">Sesión interrumpida</h2>
+      <h1 className="text-[22px] font-semibold tracking-[-0.015em]">Sesión interrumpida</h1>
       <p className="mt-2 text-[15px] leading-relaxed text-muted">
         Esta clase se quedó abierta. Esto es lo que se conserva en este dispositivo y en el servidor:
       </p>
@@ -604,7 +604,7 @@ function FinalizePanel({
         <div className="mx-auto mb-5 flex size-14 items-center justify-center rounded-full bg-accent-soft text-accent">
           <Check className="size-6" />
         </div>
-        <h2 className="text-[22px] font-semibold tracking-[-0.015em]">Clase guardada</h2>
+        <h1 className="text-[22px] font-semibold tracking-[-0.015em]">Clase guardada</h1>
         {state.missingChunks?.length ? (
           <Callout tone="warning" className="mt-4 text-left">
             Se cerró sin {state.missingChunks.length} fragmentos de audio que no pudieron subirse. La transcripción de
@@ -624,7 +624,7 @@ function FinalizePanel({
       <div className="mx-auto mb-5 flex size-14 items-center justify-center rounded-full bg-sunken text-muted">
         {state.sync.uploading ? <Spinner className="size-6" /> : <CloudUpload className="size-6" />}
       </div>
-      <h2 className="text-[22px] font-semibold tracking-[-0.015em]">Cerrando la clase</h2>
+      <h1 className="text-[22px] font-semibold tracking-[-0.015em]">Cerrando la clase</h1>
       <p className="mt-2 text-[15px] text-muted">
         {pending > 0
           ? `Subiendo ${pending} ${pending === 1 ? "elemento pendiente" : "elementos pendientes"}… No cierres esta pestaña.`

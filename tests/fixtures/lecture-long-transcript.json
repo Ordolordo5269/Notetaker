@@ -1,0 +1,967 @@
+{
+  "title": "Applicable law to contracts: Rome I Regulation (long lecture)",
+  "subject": "Private International Law",
+  "note": "Synthetic 88-minute bilingual lecture generated with gpt-6-luna for scale tests.",
+  "segments": [
+    {
+      "startS": 0,
+      "text": "Bueno, empezamos hoy con el Reglamento Roma I, que es una pieza central del Derecho internacional privado europeo. La pregunta básica es muy sencilla: cuando un contrato está conectado con más de un país, ¿qué Derecho nacional va a regularlo? Roma I intenta dar una respuesta común a esa pregunta. No decide quién gana el litigio ni ante qué tribunal se presenta; se ocupa de la ley aplicable.",
+      "language": "es"
+    },
+    {
+      "startS": 28.1,
+      "text": "Think of a Spanish company selling machinery to a German buyer, with delivery in France and a contract drafted in English. If a dispute arises, several legal systems may appear relevant. Roma I gives courts in the participating EU states common rules for identifying the applicable law. It does not create one European law of contracts; rather, it selects which national contract law governs the particular relationship.",
+      "language": "en"
+    },
+    {
+      "startS": 56.7,
+      "text": "Y aquí conviene separar dos preguntas que se confunden mucho. Primero: ¿qué tribunal tiene competencia para conocer del caso? Segundo: ¿qué Derecho debe aplicar ese tribunal? Bruselas I bis responde principalmente a la primera; Roma I, a la segunda. Un tribunal español puede tener competencia y, sin embargo, tener que aplicar Derecho alemán. That distinction is fundamental, and it comes up in the exam every year.",
+      "language": "mixed"
+    },
+    {
+      "startS": 83.6,
+      "text": "Por ejemplo, imaginad que el comprador alemán demanda a la empresa española ante un tribunal que resulta competente conforme a Bruselas I bis. Ese tribunal no aplica automáticamente Derecho español por el mero hecho de estar en España. Tendrá que acudir a Roma I y seguir sus normas de conflicto. So jurisdiction and applicable law are related in practice, but they are not the same legal question.",
+      "language": "mixed"
+    },
+    {
+      "startS": 110.8,
+      "text": "Bruselas I bis es el Reglamento 1215/2012, mientras que Roma I es el Reglamento 593/2008. Tienen objetivos complementarios: uno organiza la competencia judicial y la circulación de resoluciones, y el otro armoniza las reglas de conflicto sobre obligaciones contractuales. No asumáis que, porque ambos instrumentos sean europeos y se usen en el mismo pleito, tienen idéntico ámbito material o temporal. Hay que comprobar cada instrumento por separado.",
+      "language": "es"
+    },
+    {
+      "startS": 137.9,
+      "text": "The practical sequence is often: identify the court, then identify the applicable-law instrument, and then apply its connecting rules. But be careful, because procedural questions and substantive questions can overlap in a real case. A court may use its own procedural law while applying foreign substantive contract law. Roma I is about the latter selection, not about harmonising every procedural aspect of cross-border litigation.",
+      "language": "en"
+    },
+    {
+      "startS": 164.2,
+      "text": "Pasemos al ámbito material, que está en el artículo 1. Roma I se aplica a las obligaciones contractuales en materia civil y mercantil cuando existe un conflicto de leyes. Así que no basta con que el contrato sea internacional en un sentido coloquial; debe plantearse una cuestión de ley aplicable. Y, además, debemos comprobar que la materia no está excluida expresamente por el propio Reglamento.",
+      "language": "es"
+    },
+    {
+      "startS": 191.7,
+      "text": "The phrase “civil and commercial matters” is familiar from other EU instruments, but the scope still requires careful analysis. We ask whether the issue concerns a contractual obligation and whether there is a conflict of laws. If the dispute is purely domestic, Roma I may not be needed. If it concerns a matter expressly excluded by Article 1, we cannot simply apply the Regulation because the parties used the word “contract.”",
+      "language": "en"
+    },
+    {
+      "startS": 220.3,
+      "text": "El artículo 1 contiene exclusiones importantes, y no vamos a estudiarlas todas hoy en detalle, pero quiero que entendáis el método. Hay materias que, por su naturaleza, quedan fuera, como determinadas cuestiones relativas al estado y la capacidad de las personas físicas, o las obligaciones derivadas de relaciones familiares. No las metemos dentro de Roma I solo porque haya un acuerdo o una promesa entre las partes.",
+      "language": "es"
+    },
+    {
+      "startS": 248.2,
+      "text": "For instance, a dispute about whether a person has legal capacity is not transformed into a Roma I contractual issue just because that person signed a document. Similarly, questions concerning family relationships may involve agreements, but the Regulation’s material exclusions still have to be considered. The legal character of the issue matters. Look at what the court is actually being asked to decide, not merely the label attached to the claim.",
+      "language": "en"
+    },
+    {
+      "startS": 276.5,
+      "text": "También quedan fuera algunas materias que suelen aparecer cerca del Derecho contractual, por ejemplo ciertas obligaciones relativas a letras de cambio, cheques y pagarés, así como determinados aspectos del Derecho de sociedades y de representación. No hace falta recitar ahora todo el catálogo de memoria, pero sí saber que el artículo 1 delimita el Reglamento. En un caso práctico, identificad primero la cuestión jurídica concreta y contrastadla con las exclusiones.",
+      "language": "es"
+    },
+    {
+      "startS": 304.4,
+      "text": "A useful exam technique is to state the scope analysis explicitly: first, this is or is not a contractual obligation; second, it is or is not a civil and commercial matter; third, no relevant Article 1 exclusion applies, or explain which exclusion does. Don’t jump straight to the applicable-law rule. If the instrument does not cover the issue, there is no point applying its choice-of-law provisions.",
+      "language": "en"
+    },
+    {
+      "startS": 332.2,
+      "text": "Hay otra idea que parece técnica, pero es muy importante: el ámbito temporal. El artículo 28 dispone que Roma I se aplica a los contratos celebrados después del 17 de diciembre de 2009. La fecha relevante es la celebración del contrato, no la fecha en que se interpone la demanda ni, sin más, la fecha en que aparece el incumplimiento.",
+      "language": "es"
+    },
+    {
+      "startS": 356.4,
+      "text": "So imagine a contract made in 2008, breached in 2012, with proceedings started in 2015. The later breach and lawsuit do not by themselves bring that contract within Article 28. We must check when the contract was concluded. Conversely, a contract concluded after 17 December 2009 may fall within Roma I even if the dispute is brought years later, subject to the Regulation’s other scope requirements.",
+      "language": "en"
+    },
+    {
+      "startS": 383.4,
+      "text": "Ojo con los contratos modificados, renovados o prorrogados, porque la cronología puede exigir más análisis. No digáis automáticamente que cualquier cambio posterior convierte todo el contrato antiguo en uno nuevo. Hay que determinar si jurídicamente hubo un contrato nuevo, una modificación del existente o una mera continuación, conforme a las circunstancias y al Derecho pertinente. En esta primera parte, quédate con la regla clara del artículo 28 y la fecha de celebración.",
+      "language": "es"
+    },
+    {
+      "startS": 413.5,
+      "text": "And do not confuse the temporal scope of Roma I with the date on which a Member State became bound by a particular EU instrument. For the core rule we are studying, Article 28 gives the relevant threshold: contracts concluded after 17 December 2009. In an exam problem, mark the contract date immediately. It is an easy point to miss, especially when the facts emphasise a much later dispute.",
+      "language": "en"
+    },
+    {
+      "startS": 442,
+      "text": "Ahora vamos al artículo 2, que establece el carácter universal del Reglamento. Universal significa que la norma de conflicto de Roma I puede designar la ley de un Estado miembro o la de un Estado que no sea miembro de la Unión. No se limita a escoger entre las leyes de los países participantes. This is a choice-of-law rule with worldwide reach, subject to the Regulation’s scope.",
+      "language": "mixed"
+    },
+    {
+      "startS": 469.7,
+      "text": "Por ejemplo, si el tribunal español aplica Roma I y la regla pertinente conduce a la ley de Nueva York, el artículo 2 no impide aplicar esa ley por ser estadounidense. El juez español aplica la norma de conflicto europea y, como resultado, puede aplicar Derecho de un tercer Estado. Universal application, therefore, refers to the law that may be designated, not to the geographic location of the court.",
+      "language": "mixed"
+    },
+    {
+      "startS": 498.6,
+      "text": "Esto es pregunta de examen: ¿qué significa exactamente la aplicación universal del artículo 2? No significa que Roma I se aplique a cualquier problema jurídico del mundo, sin límites. Significa que, cuando el Reglamento resulta aplicable, la ley que él designe puede ser la de cualquier país, aunque ese país no sea Estado miembro. Primero comprobáis el ámbito; después aceptáis que el resultado pueda ser una ley extranjera.",
+      "language": "es"
+    },
+    {
+      "startS": 526.8,
+      "text": "Compare this with a narrower system that only allows courts to choose among the laws of participating states. Roma I does not work like that. A Spanish court applying the Regulation may designate English law, Swiss law, or Japanese law, depending on the relevant rule and facts. The forum is in the EU, but the designated law need not be European or even the law of a state connected to the EU.",
+      "language": "en"
+    },
+    {
+      "startS": 555.6,
+      "text": "Y esto conecta con la diferencia entre la norma de conflicto y el Derecho material. Roma I no convierte la ley designada en una ley europea; simplemente ordena al tribunal que la identifique mediante sus reglas. Una vez designada, la ley nacional correspondiente aporta las normas sustantivas aplicables al contrato, con las salvedades que estudiaremos más adelante. Hoy estamos definiendo el mapa, todavía no recorriendo cada regla de conexión.",
+      "language": "es"
+    },
+    {
+      "startS": 583.5,
+      "text": "Let me make the three introductory points concrete. Article 1 asks whether the dispute falls within the material scope. Article 28 asks whether the contract is within the temporal scope, using the date of conclusion. Article 2 tells us that the designated law may be the law of a non-EU state. These are separate checks, and you should not use one to answer another.",
+      "language": "en"
+    },
+    {
+      "startS": 610.4,
+      "text": "Así que, ante un caso, no empecéis diciendo “como las partes son españolas, aplicamos Derecho español”. Eso puede resultar correcto o incorrecto, pero todavía no habéis hecho el análisis. Preguntad primero si hay una obligación contractual civil o mercantil, si existe alguna exclusión del artículo 1 y si el contrato se celebró después de la fecha del artículo 28. Después vendrán las reglas para encontrar la ley aplicable.",
+      "language": "es"
+    },
+    {
+      "startS": 639.2,
+      "text": "To close this first part, keep the architecture in mind: Brussels I bis usually helps us locate the competent court; Roma I helps that court select the law governing contractual obligations. Article 1 defines what kinds of matters Roma I covers, Article 28 sets its temporal threshold, and Article 2 makes the choice universal. Okay, repeat it once: scope, date, and possible designation of third-country law.",
+      "language": "mixed"
+    },
+    {
+      "startS": 666.6,
+      "text": "Retomamos, eh, la idea de la introducción: Roma I armoniza las reglas para determinar la ley aplicable a obligaciones contractuales, pero no crea un código contractual europeo uniforme. Y ahora entramos en el principio central, la autonomía de la voluntad. En otras palabras, las partes pueden elegir la ley que gobernará su contrato; esa elección da previsibilidad, aunque no significa que puedan apartar cualquier norma sin límite.",
+      "language": "mixed"
+    },
+    {
+      "startS": 693.4,
+      "text": "The starting point is Article 3 of Regulation 593/2008. Its basic message is simple: a contract shall be governed by the law chosen by the parties. Ojo, no estamos hablando de elegir el tribunal competente, que es otra cuestión, sino de elegir la substantive law applicable to the contract. Por ejemplo, una empresa española y otra alemana pueden pactar que su contrato se rija por la ley francesa.",
+      "language": "mixed"
+    },
+    {
+      "startS": 722.4,
+      "text": "La elección puede ser expresa. Una cláusula típica diría: “Este contrato se regirá e interpretará de conformidad con la ley española”. Si especifica una comunidad territorial con normas propias, conviene identificarla con claridad, por ejemplo, “la ley civil catalana”, siempre que esa referencia permita determinar la ley aplicable. The drafting lesson is: name the legal system precisely, rather than saying vaguely that the contract follows “European law”.",
+      "language": "mixed"
+    },
+    {
+      "startS": 750.5,
+      "text": "No hace falta una fórmula sacramental ni una cláusula titulada “governing law”, aunque, naturalmente, es mejor redactarla de forma inequívoca. Puede aparecer en las condiciones generales, siempre que se hayan incorporado válidamente al contrato. Imaginad que el pedido dice “law of England and Wales applies” y el cliente lo acepta conforme al procedimiento pactado. Ahí tenemos, en principio, una elección expresa bajo Article 3.",
+      "language": "mixed"
+    },
+    {
+      "startS": 776.5,
+      "text": "Pero la elección también puede ser tácita, siempre que resulte claramente demostrada por los términos del contrato o las circunstancias del caso. Here is the key phrase: clearly demonstrated. No basta con que al juez le parezca probable que las partes preferían cierta ley. La inferencia debe tener base objetiva y suficientemente clara; de lo contrario, pasaremos a las reglas subsidiarias de Roma I para determinar la ley aplicable.",
+      "language": "mixed"
+    },
+    {
+      "startS": 804.1,
+      "text": "Por ejemplo, las partes pueden remitirse de manera expresa a disposiciones concretas de un ordenamiento, o reproducir en el contrato una cláusula que revele con claridad que han querido someterse a él. A veces se invoca también la elección del tribunal, pero cuidado: una cláusula de jurisdicción no equivale automáticamente a una elección de ley. Puede ser un indicio, no una conclusión mecánica. Esto es pregunta de examen.",
+      "language": "mixed"
+    },
+    {
+      "startS": 832.1,
+      "text": "Suppose a Spanish supplier and an Italian buyer choose the courts of Madrid, but say nothing about governing law. That choice of forum may be relevant when assessing the circumstances, yet it does not by itself settle the applicable law. The court must examine the whole contractual context. Repeat this distinction: jurisdiction answers “which court?”, whereas Article 3 answers “which law governs the contract?” They are related, but they are not interchangeable.",
+      "language": "en"
+    },
+    {
+      "startS": 862,
+      "text": "También puede haber indicios en la lengua del contrato, en referencias a normas nacionales o en la estructura de sus cláusulas, pero ninguno funciona automáticamente. Un contrato redactado en español no queda por eso sometido a la ley española. Likewise, using a standard form drafted in England does not necessarily establish English law. El análisis es global: lo que importa es si la elección se demuestra claramente a partir del contrato y de las circunstancias.",
+      "language": "mixed"
+    },
+    {
+      "startS": 892.5,
+      "text": "Artículo 3 permite elegir la ley para todo el contrato o solo para una parte. Esto se llama dépeçage, o, dicho más sencillamente, elección parcial de la ley aplicable. For instance, the parties might choose Spanish law for the sale obligations and French law for a distinct licensing section. Pero debe existir una división coherente y manejable, no una fragmentación que haga imposible aplicar el contrato.",
+      "language": "mixed"
+    },
+    {
+      "startS": 920.1,
+      "text": "Un ejemplo de cláusula sería: “La compraventa se regirá por la ley española; las obligaciones derivadas de la licencia contenida en la cláusula doce se regirán por la ley francesa”. La precisión es esencial: hay que delimitar qué materia cubre cada ley. Si no, el juez puede encontrarse con dudas sobre el alcance de la elección y sobre qué disposiciones gobiernan una obligación concreta. Draft carefully; vague dépeçage creates litigation.",
+      "language": "mixed"
+    },
+    {
+      "startS": 948.3,
+      "text": "La elección parcial no significa que cada cuestión imaginable pueda separarse sin atender a la estructura contractual. Pensemos en un contrato integrado de suministro, instalación y mantenimiento: escoger tres leyes distintas podría generar incoherencias sobre incumplimiento, resolución y daños. El Reglamento permite la elección parcial, sí, pero las partes deben expresar una delimitación suficientemente clara. Y, en la práctica, muchas veces una sola ley para todo el contrato resulta más segura.",
+      "language": "mixed"
+    },
+    {
+      "startS": 978.1,
+      "text": "The parties may also change their choice at any time, under Article 3. That means a later agreement can replace the original governing law, or add a choice where there was none. Imaginad que el contrato inicial no contiene cláusula y, dos años después, las partes firman una adenda que escoge la ley alemana. En principio, esa modificación es posible, but it cannot prejudice certain interests protected by the Regulation.",
+      "language": "mixed"
+    },
+    {
+      "startS": 1006.2,
+      "text": "En particular, el cambio no puede perjudicar la validez formal del contrato conforme al artículo 11 ni los derechos de terceros. Supongamos que un tercero ha adquirido derechos sobre una obligación antes de que las partes cambien la ley aplicable. Las partes no pueden utilizar su acuerdo posterior para borrar esos derechos. Este límite suele olvidarse: la autonomía es amplia entre contratantes, pero no es una herramienta para perjudicar a terceros ajenos.",
+      "language": "mixed"
+    },
+    {
+      "startS": 1034.9,
+      "text": "Hay que separar, además, la elección de ley de la validez del propio acuerdo de elección. Roma I contiene reglas específicas, y no debemos asumir que una firma o una cláusula resuelve cualquier problema de consentimiento o forma. For today, keep the main point: a choice can be modified, but the modification remains subject to the safeguards in Article 3(2), including formal validity and third-party rights.",
+      "language": "mixed"
+    },
+    {
+      "startS": 1061.8,
+      "text": "Ahora, primer límite importante: una situación puramente interna. Si, en el momento de elegir la ley, todos los demás elementos pertinentes están localizados en un país distinto del país cuya ley se elige, el artículo 3(3) preserva las disposiciones de ese otro país que no puedan excluirse mediante acuerdo. Es decir, elegir una ley extranjera no permite esquivar automáticamente normas imperativas del país realmente conectado con la situación.",
+      "language": "mixed"
+    },
+    {
+      "startS": 1090.2,
+      "text": "Example: two Spanish companies conclude and perform a contract entirely in Spain, but insert a clause choosing New York law. Article 3(3) does not necessarily invalidate that choice. However, provisions of Spanish law that cannot be derogated from by agreement remain applicable. So the parties may select New York law for the contract, but they cannot use that selection simply to contract out of every non-derogable Spanish rule.",
+      "language": "en"
+    },
+    {
+      "startS": 1117.7,
+      "text": "La expresión “todos los demás elementos pertinentes” exige mirar el caso concreto; no basta con contar domicilios de manera mecánica. Importan, entre otras cosas, dónde están las partes, dónde se negocia y ejecuta el contrato, y qué relaciones están implicadas. Lo decisivo para el artículo 3(3) es que todos esos elementos estén situados en un país distinto del elegido. Ojo con simplificarlo a “las dos partes son españolas”.",
+      "language": "mixed"
+    },
+    {
+      "startS": 1144.9,
+      "text": "El segundo límite del artículo 3 aparece cuando todos los demás elementos pertinentes están situados en uno o varios Estados miembros, pero las partes eligen la ley de un Estado no miembro. In that case, the choice cannot prejudice the application of provisions of European Union law that cannot be derogated from by agreement, as implemented in the forum Member State. Es un límite específico relacionado con la protección del Derecho de la Unión.",
+      "language": "mixed"
+    },
+    {
+      "startS": 1175.1,
+      "text": "Imaginad una operación cuyos elementos están todos en España y Portugal, pero las partes eligen la ley de un tercer Estado. Esa elección puede operar, pero no debe desplazar las normas imperativas de la Unión aplicables en el foro, en la medida prevista por el artículo 3(4). No confundáis este supuesto con el artículo 3(3): allí hablamos de un país distinto, y aquí de elementos en uno o varios Estados miembros.",
+      "language": "mixed"
+    },
+    {
+      "startS": 1203.9,
+      "text": "Now, a very important distinction: Article 3(3) and 3(4) do not mean that every mandatory rule automatically defeats the chosen law. They preserve particular non-derogable provisions in defined situations. Separately, Article 9 deals with overriding mandatory provisions, whose application a country considers crucial for safeguarding public interests. Son mecanismos distintos; no metamos todas las normas imperativas en la misma caja.",
+      "language": "mixed"
+    },
+    {
+      "startS": 1227.9,
+      "text": "Por ejemplo, una cláusula que dice “se aplica la ley francesa” no impide necesariamente que el tribunal aplique una norma de policía pertinente conforme al artículo 9, si concurren sus requisitos. Pero tampoco basta con que una regla nacional sea imperativa en Derecho interno para que sea automáticamente una overriding mandatory provision en Roma I. El umbral es más exigente y el análisis depende de la norma y del contexto.",
+      "language": "mixed"
+    },
+    {
+      "startS": 1256.3,
+      "text": "En la práctica, una buena cláusula puede decir: “Este contrato, así como las obligaciones no contractuales derivadas de él, se regirá por la ley española”. Pero atención: Roma I regula las obligaciones contractuales; las no contractuales pueden quedar bajo otro instrumento, como Roma II. La cláusula debe coordinarse con el marco jurídico aplicable. Do not assume that one sentence can determine every legal issue arising from a business relationship.",
+      "language": "mixed"
+    },
+    {
+      "startS": 1285,
+      "text": "Otro ejemplo de redacción: “Las partes eligen la ley alemana para la interpretación y ejecución de este contrato, sin perjuicio de las disposiciones imperativas que resulten aplicables conforme al Reglamento Roma I”. Esa reserva no crea por sí sola las excepciones, porque las determina el Reglamento; sirve, eso sí, para reflejar que la elección no pretende excluir normas que jurídicamente no pueden excluirse. Drafting should describe the law, not pretend to override it.",
+      "language": "mixed"
+    },
+    {
+      "startS": 1315.2,
+      "text": "Recapitulamos, porque esto comes up in the exam every year: elección expresa o tácita claramente demostrada; elección para todo el contrato o para una parte; posibilidad de cambiarla, respetando forma y terceros; y límites de los apartados 3 y 4 para determinadas situaciones internas o vinculadas enteramente a Estados miembros. La autonomía de la voluntad es el punto de partida, pero no una libertad absoluta. En la siguiente parte veremos qué ocurre cuando no hay elección.",
+      "language": "mixed"
+    },
+    {
+      "startS": 1345.7,
+      "text": "En la parte anterior vimos la autonomía de la voluntad del artículo 3: si las partes eligen válidamente la ley aplicable, empezamos por esa elección. Ahora pasamos al escenario subsidiario, es decir, qué ocurre cuando no hay elección, o cuando la elección no resuelve la cuestión concreta. El artículo 4 establece reglas objetivas; ojo, no es una invitación a escoger la ley que nos parezca más justa.",
+      "language": "es"
+    },
+    {
+      "startS": 1374,
+      "text": "The structure of Article 4 matters a lot. First, paragraph 1 gives us a catalogue of contract types and connecting factors. Then paragraph 2 provides the characteristic-performance rule for contracts not covered, or for certain mixed contracts. Paragraph 3 is the escape clause, and paragraph 4 is the final fallback. So, please don’t jump straight to the characteristic performer before checking the catalogue.",
+      "language": "en"
+    },
+    {
+      "startS": 1399.9,
+      "text": "Empezamos por el artículo 4.1(a): un contrato de compraventa de mercaderías se rige por la ley del país donde el vendedor tenga su residencia habitual. No miramos, como regla, dónde se entregan las mercancías ni dónde está el comprador. Por ejemplo, vendedor establecido en España y comprador en Francia: en principio, ley española, salvo que opere una regla posterior del artículo 4.",
+      "language": "es"
+    },
+    {
+      "startS": 1426.1,
+      "text": "And be precise with the connecting factor: habitual residence, not necessarily nationality, and not automatically the place where the company was incorporated. For a company or other body, Article 19 gives us the relevant habitual-residence rules, including the place of central administration. In an exam, identify the contract category first, then state the relevant habitual residence, and only afterwards consider any possible escape clause.",
+      "language": "en"
+    },
+    {
+      "startS": 1452.8,
+      "text": "El artículo 4.1(b) se refiere a los contratos de prestación de servicios: se aplica la ley del país de residencia habitual del prestador. Si una consultora española presta servicios a una sociedad alemana, partimos de la ley española. No confundáis la prestación de servicios con la compraventa: la calificación jurídica del contrato importa, aunque en la práctica haya suministro de materiales junto al trabajo.",
+      "language": "es"
+    },
+    {
+      "startS": 1479.7,
+      "text": "Paragraph 1 also deals with rights in rem in immovable property and tenancies of immovable property: the general connection is the country where the property is situated. There is a narrow exception for a short private tenancy, not exceeding six consecutive months, where the tenant is a natural person and both parties have habitual residence in the same country. Then that common country’s law applies.",
+      "language": "en"
+    },
+    {
+      "startS": 1506.7,
+      "text": "Otro supuesto del catálogo es la franquicia, artículo 4.1(e): se aplica la ley del país de residencia habitual del franquiciado. En la distribución, artículo 4.1(f), el factor es la residencia habitual del distribuidor. Son dos reglas distintas y conviene no intercambiarlas. A veces el alumno ve una red comercial y marca franquicia automáticamente; no basta el nombre que las partes hayan puesto al contrato.",
+      "language": "es"
+    },
+    {
+      "startS": 1532.7,
+      "text": "There are further categories in Article 4(1): a sale of goods by auction is connected with the country where the auction takes place, if that place can be determined. Certain contracts concluded within a multilateral system are connected with the law governing that system. These are specific rules, so don’t replace them with a vague appeal to where the deal feels most connected.",
+      "language": "en"
+    },
+    {
+      "startS": 1558.4,
+      "text": "Let’s pause on paragraph 2. If the contract is not covered by paragraph 1, we look to the characteristic performance: the law is that of the country where the party who performs it has habitual residence. This usually means identifying the performance that gives the contract its distinctive character, rather than simply counting obligations or choosing the obligation that happens to be disputed.",
+      "language": "en"
+    },
+    {
+      "startS": 1584,
+      "text": "Por ejemplo, en un contrato típico de servicios, la actividad del prestador suele ser la prestación característica, y por eso el artículo 4.1(b) ya nos lleva a una solución específica. El apartado 2 es especialmente útil para contratos que no aparecen en el catálogo. Again, catalogue first, characteristic performance second. Esa secuencia es una de las cosas que más se preguntan en el examen.",
+      "language": "es"
+    },
+    {
+      "startS": 1610.7,
+      "text": "Paragraph 2 also applies where the contract contains elements that would fall under more than one of the categories in paragraph 1. So, for a genuinely mixed contract, you cannot just pick whichever category gives the result you prefer. You must assess the contract as a whole and identify its characteristic performance, unless the specific rules point clearly to a category that governs the agreement.",
+      "language": "en"
+    },
+    {
+      "startS": 1637,
+      "text": "Aquí hay una cautela importante: la prestación característica no siempre es evidente, y algunos contratos no tienen una prestación característica identificable. Pensemos en ciertos acuerdos de intercambio, donde cada parte entrega algo de naturaleza semejante. No forcéis la regla. Si no podemos determinar la ley con arreglo al apartado 1 o al apartado 2, entonces pasamos al cierre del apartado 4.",
+      "language": "es"
+    },
+    {
+      "startS": 1662.3,
+      "text": "Now the escape clause, Article 4(3). If it is clear from all the circumstances that the contract is manifestly more closely connected with a country other than the one indicated by paragraphs 1 or 2, the law of that other country applies. The threshold is deliberately demanding: manifestly more closely connected. It is not enough that another country has some relevant link.",
+      "language": "en"
+    },
+    {
+      "startS": 1687.7,
+      "text": "La cláusula de escape no es una autorización general para corregir resultados incómodos. Hay que valorar el conjunto de circunstancias: por ejemplo, negociación, ejecución, establecimiento de las partes y contexto contractual. Ningún factor aislado decide automáticamente. Si el contrato está sometido a la ley española por la regla de compraventa, pero todas las circunstancias muestran una conexión manifiestamente más estrecha con otro país, podemos considerar el apartado 3.",
+      "language": "es"
+    },
+    {
+      "startS": 1715.1,
+      "text": "This comes up in the exam every year in one form or another: distinguish the ordinary connecting factor from the escape clause. Paragraph 1 or 2 gives the initial answer; paragraph 3 may displace it only on a strong showing. And, to be clear, a simple difference between the law selected by the rule and the law that seems more convenient is not enough.",
+      "language": "en"
+    },
+    {
+      "startS": 1741.5,
+      "text": "El apartado 4 es el cierre: si la ley aplicable no puede determinarse conforme al apartado 1 o al apartado 2, el contrato se regirá por la ley del país con el que presente los vínculos más estrechos. Fijaos en que esta regla residual aparece después de esos apartados. No es el primer paso ni sustituye sin más al catálogo del apartado 1.",
+      "language": "es"
+    },
+    {
+      "startS": 1767.9,
+      "text": "In other words, paragraph 4 is not the same as paragraph 3. Paragraph 3 starts from a law already indicated by paragraph 1 or 2, then allows a manifestly closer connection to displace it. Paragraph 4 operates when those earlier rules do not allow us to determine the applicable law. Similar language about closeness, different procedural role: that distinction is worth learning carefully.",
+      "language": "en"
+    },
+    {
+      "startS": 1794.1,
+      "text": "Vamos con el caso práctico de compraventa. Una empresa vendedora tiene su residencia habitual en Italia y vende maquinaria a una empresa compradora con residencia habitual en Portugal. No hay elección de ley. Aplicamos el artículo 4.1(a): ley italiana, por ser la del país de residencia habitual del vendedor. El lugar de instalación de la maquinaria en Portugal no cambia automáticamente esa respuesta.",
+      "language": "es"
+    },
+    {
+      "startS": 1821.1,
+      "text": "Now test the escape clause in that same sale. Suppose the machinery is sold, installed and serviced as part of one integrated project in Portugal, and the negotiations and performance are overwhelmingly centred there. Those facts might support an argument under Article 4(3), but the conclusion is not automatic. We must ask whether the connection with Portugal is manifestly closer than the connection identified by paragraph 1.",
+      "language": "en"
+    },
+    {
+      "startS": 1848.6,
+      "text": "No confundáis, además, una compraventa con una prestación de servicios solo porque el vendedor instala el producto. Si la instalación es accesoria a la venta, puede mantenerse la calificación como compraventa; si el trabajo constituye el centro económico y funcional del acuerdo, la calificación puede ser más compleja. Hay que interpretar el contrato realmente celebrado, no quedarse con una etiqueta en la portada.",
+      "language": "es"
+    },
+    {
+      "startS": 1875.4,
+      "text": "Segundo caso, distribución: un fabricante francés concede a un distribuidor neerlandés el derecho a comercializar sus productos, sin elección de ley. Conforme al artículo 4.1(f), la ley aplicable es la del país de residencia habitual del distribuidor, es decir, en este ejemplo, la ley neerlandesa. No aplicamos la ley francesa solo porque el fabricante produzca allí las mercancías.",
+      "language": "es"
+    },
+    {
+      "startS": 1898.7,
+      "text": "A distribution agreement is not simply a series of individual sales. The framework relationship has its own category under Article 4(1)(f), and the relevant connecting factor is the distributor’s habitual residence. Of course, the facts may reveal a different type of arrangement, or circumstances potentially relevant to Article 4(3). But don’t confuse the manufacturer’s residence with the distributor’s residence under the specific rule.",
+      "language": "en"
+    },
+    {
+      "startS": 1925.1,
+      "text": "Y tampoco confundáis distribución y franquicia. En la franquicia, el artículo 4.1(e) mira al franquiciado; en distribución, el artículo 4.1(f) mira al distribuidor. Puede haber acuerdos con elementos de ambos modelos, así que habrá que valorar su contenido. If paragraph 1 genuinely covers multiple categories, recuerda el artículo 4.2 y la prestación característica, sin olvidar que la cláusula de escape sigue siendo una cuestión separada.",
+      "language": "mixed"
+    },
+    {
+      "startS": 1952.7,
+      "text": "Cerramos con el método práctico: primero, compruebo si hubo elección conforme al artículo 3; si no, califico el contrato y busco su regla en el artículo 4.1. Si no encaja, o hay elementos de varias categorías, voy al 4.2. Después pregunto si existe una conexión manifiestamente más estrecha, artículo 4.3; y solo si no puedo determinar la ley por las reglas anteriores, uso el apartado 4.",
+      "language": "es"
+    },
+    {
+      "startS": 1979.2,
+      "text": "Venimos de la regla general del artículo 4: si las partes no han elegido ley, buscamos la conexión que corresponda al tipo de contrato, con la prestación característica como punto de partida en muchos casos. Pero ahora aparecen dos ámbitos en los que el Reglamento introduce reglas especiales, porque la conexión general puede no proteger suficientemente a una parte débil o no reflejar bien la operación. Empezamos con transporte.",
+      "language": "es"
+    },
+    {
+      "startS": 2008.5,
+      "text": "The first distinction is between carriage of goods and carriage of passengers. Article 5 does not treat them identically, so please don’t apply one formula to both. For goods, the Regulation starts from the carrier’s habitual residence, but only if there is a further link with the country concerned. For passengers, party autonomy is restricted more directly. This distinction is very examinable, eh.",
+      "language": "en"
+    },
+    {
+      "startS": 2035.6,
+      "text": "En transporte de mercancías, conforme al artículo 5.1, a falta de elección se aplica la ley del país donde el porteador tenga su residencia habitual, siempre que en ese mismo país esté también el lugar de recepción o el de entrega, o la residencia habitual del remitente. Si no se cumple esa conexión, se aplica la ley del país del lugar de entrega convenido por las partes.",
+      "language": "es"
+    },
+    {
+      "startS": 2063.4,
+      "text": "So the carrier’s habitual residence is not an unconditional connecting factor. You need one of those additional links: receipt, delivery, or the consignor’s habitual residence in the same country. For example, a Spanish carrier takes goods from Portugal to France for a Portuguese consignor. Spain is not automatically selected merely because the carrier is Spanish; check the specified links, and then the agreed destination if they fail.",
+      "language": "en"
+    },
+    {
+      "startS": 2091.6,
+      "text": "Hay una válvula de escape en el propio artículo 5.1: si del conjunto de circunstancias resulta claramente que el contrato presenta vínculos manifiestamente más estrechos con otro país, se aplica la ley de ese otro país. No basta con que otra ley parezca algo más conveniente. El Reglamento exige una conexión claramente más estrecha, una excepción que debe manejarse con prudencia.",
+      "language": "es"
+    },
+    {
+      "startS": 2116.1,
+      "text": "Passenger carriage is different. Under Article 5(2), the parties may choose only from a limited set of laws: the passenger’s habitual residence, the carrier’s habitual residence, the carrier’s central administration, or the place of departure or destination. This is a closed menu, not a general invitation to select any law under Article 3. The restriction aims to prevent the passenger being left without meaningful protection.",
+      "language": "en"
+    },
+    {
+      "startS": 2143,
+      "text": "Si no hay elección válida en un contrato de transporte de pasajeros, rige, en principio, la ley del país donde el pasajero tenga su residencia habitual, siempre que el lugar de salida o el de destino esté también en ese país. Si falta esa condición, se aplica la ley de la residencia habitual del porteador. Cuidado: no confundáis esta regla supletoria con la lista de elección limitada.",
+      "language": "es"
+    },
+    {
+      "startS": 2170,
+      "text": "Imagine a passenger habitually resident in Spain, travelling from Madrid to Rome with a carrier habitually resident in Italy. The Spanish residence and place of departure coincide in Spain, so the default rule points to Spanish law. If the passenger instead lives in Spain but both departure and destination are abroad, that first connection is missing, and we look to the carrier’s habitual residence. Simple example, but it catches people out.",
+      "language": "en"
+    },
+    {
+      "startS": 2198.6,
+      "text": "En cuanto a la forma, el artículo 5 no elimina la autonomía de la voluntad: la ordena de manera más estrecha para pasajeros. Por tanto, primero preguntamos si hubo elección conforme al artículo 3, pero después comprobamos si la ley elegida pertenece a las opciones permitidas por el artículo 5. No asumáis que una cláusula de elección habitual en un billete es automáticamente eficaz en todos sus extremos.",
+      "language": "es"
+    },
+    {
+      "startS": 2227,
+      "text": "Now let’s move to Article 6, consumer contracts. The consumer must be a natural person acting for purposes outside their trade or profession, and the other party must be acting in the course of their business or professional activity. A company buying office equipment is not a consumer for this rule. The definition is functional: ask what purpose the person was pursuing in that particular contract.",
+      "language": "en"
+    },
+    {
+      "startS": 2254.3,
+      "text": "Además, el profesional debe ejercer actividades comerciales o profesionales en el país de residencia habitual del consumidor, o dirigir por cualquier medio esas actividades a ese país, y el contrato debe quedar comprendido en el ámbito de dichas actividades. Son condiciones acumulativas, no basta con que el cliente sea consumidor. If the trader’s activity has no relevant connection with the consumer’s country, Article 6’s special protection may not apply.",
+      "language": "mixed"
+    },
+    {
+      "startS": 2281.8,
+      "text": "Cuando se cumplen esas condiciones y no se ha elegido ley, el artículo 6.1 dispone que el contrato se rige por la ley del país donde el consumidor tenga su residencia habitual. Así se evita que el consumidor tenga que litigar, por la mera contratación internacional, bajo una ley imprevisible y potencialmente menos protectora. La conexión busca estabilidad y proximidad para la parte estructuralmente más débil.",
+      "language": "es"
+    },
+    {
+      "startS": 2309.3,
+      "text": "The key protection is in Article 6(2). The parties may choose the applicable law, but that choice cannot deprive the consumer of the protection afforded by provisions that cannot be derogated from by agreement under the law that would apply in the absence of choice, namely the law of the consumer’s habitual residence. So choice is allowed, but it is not a way to contract out of that mandatory floor.",
+      "language": "en"
+    },
+    {
+      "startS": 2338.2,
+      "text": "Ojo con la técnica: no significa necesariamente que toda la ley elegida desaparezca. Se aplica la ley elegida, pero el consumidor conserva la protección de aquellas normas imperativas de la ley que habría regido sin elección. Es una comparación funcional de protección, no una regla automática de aplicar siempre la norma más favorable en cada cuestión. Esto es pregunta de examen, especialmente cuando hay una cláusula de elección de ley.",
+      "language": "es"
+    },
+    {
+      "startS": 2367,
+      "text": "Article 6 also has exclusions. In particular, it does not generally cover a contract of carriage, apart from a contract relating to a package holiday combining travel and accommodation for an inclusive price. It also excludes certain contracts concerning immovable property and financial instruments, among other categories. Don’t confuse this with the separate passenger-carriage rules in Article 5: the Regulation allocates these issues deliberately.",
+      "language": "en"
+    },
+    {
+      "startS": 2393.2,
+      "text": "La exclusión del transporte es importante en la práctica. Un billete aéreo individual no se convierte en contrato de consumo del artículo 6 solo porque lo haya comprado una persona para fines privados; normalmente miraremos las reglas de transporte del artículo 5. En cambio, un viaje combinado puede entrar en la excepción prevista en el artículo 6. La clasificación del contrato, por tanto, precede a la elección de la norma.",
+      "language": "es"
+    },
+    {
+      "startS": 2421.1,
+      "text": "The difficult condition in modern online commerce is whether the professional directs activities to the consumer’s country. The leading cases are Pammer and Alpenhof, decided together by the Court of Justice. They concern the parallel jurisdictional rules, but their reasoning on directed activities is highly relevant here. The central point is that a website being accessible from another country is not, by itself, enough.",
+      "language": "en"
+    },
+    {
+      "startS": 2447.8,
+      "text": "En Pammer, un consumidor austriaco contrató un viaje en carguero anunciado por una sociedad alemana. En Alpenhof, clientes alemanes reservaron alojamiento en Austria mediante la página web de un hotel. El Tribunal explicó que hay que valorar si, antes de contratar, el profesional manifestaba su voluntad de establecer relaciones comerciales con consumidores de otros Estados, incluido el Estado de residencia del consumidor concreto.",
+      "language": "es"
+    },
+    {
+      "startS": 2474.2,
+      "text": "What kinds of indicators matter? The Court mentioned the international nature of the activity, travel directions from other countries, use of a language or currency not normally used in the trader’s state, an international telephone code, a domain name associated with another state, or expenditure on an internet referencing service to reach customers abroad. These are examples, not a rigid checklist, and no single factor decides every case.",
+      "language": "en"
+    },
+    {
+      "startS": 2502.4,
+      "text": "En Pammer, la oferta incluía indicios de orientación internacional, como referencias a viajes desde otros países y a idiomas y monedas diversos; el órgano nacional debía valorar el conjunto. En Alpenhof, la mera posibilidad de reservar por internet no bastaba, por sí sola, para concluir que el hotel dirigía actividades a Alemania. El análisis es global: la web accesible no equivale automáticamente a actividad dirigida.",
+      "language": "es"
+    },
+    {
+      "startS": 2529.7,
+      "text": "Also, the consumer does not have to prove that the directed activity caused them to conclude the contract. Nor must the contract necessarily have been concluded at a distance. Those points are often misunderstood. What matters is whether the trader objectively directed commercial activity to the consumer’s state and whether the particular contract falls within that activity. Keep the two requirements separate in your answer.",
+      "language": "en"
+    },
+    {
+      "startS": 2555.9,
+      "text": "Por ejemplo, una tienda británica que vende exclusivamente en su mercado nacional y cuya página se puede abrir desde España no dirige necesariamente su actividad a España. Si, en cambio, ofrece entrega habitual en España, anuncia expresamente a clientes españoles y facilita opciones pensadas para ellos, el cuadro cambia. No miramos solo el resultado de una búsqueda: miramos las señales que el profesional proyecta hacia ese mercado.",
+      "language": "es"
+    },
+    {
+      "startS": 2584.2,
+      "text": "A neat exam method is: identify the contract type; check whether Article 5 or Article 6 is the special rule; establish the relevant connecting conditions; then consider any choice of law and its limits. For Article 6, state the consumer’s habitual residence and explain directed activity with facts, not labels. Saying ‘the website is online’ is not legal analysis, even if it sounds modern.",
+      "language": "en"
+    },
+    {
+      "startS": 2611.5,
+      "text": "Y cerramos enlazando con el artículo 4: esa disposición sigue siendo el punto de partida residual, pero no desplaza las reglas especiales de los artículos 5 y 6 cuando sus condiciones se cumplen. Primero calificamos correctamente el contrato y comprobamos si estamos ante transporte o consumo protegido; después aplicamos la regla especial. Si no entra, volvemos al artículo 4. Repetidlo: calificación, regla especial, y solo después regla general.",
+      "language": "es"
+    },
+    {
+      "startS": 2638.8,
+      "text": "Venimos de los contratos de transporte del artículo 5 y de los contratos de consumo del artículo 6. En ambos casos, remember the method: primero identificamos la regla especial y después comprobamos qué margen deja a la autonomía de las partes. Ahora pasamos al seguro y al trabajo, que también tienen reglas específicas, pero con una lógica protectora muy marcada. No basta con decir simplemente: las partes eligieron una ley.",
+      "language": "mixed"
+    },
+    {
+      "startS": 2666.7,
+      "text": "El artículo 7 regula los contratos de seguro y es una disposición bastante técnica, así que conviene separar categorías. No todos los seguros reciben el mismo tratamiento: importa si se cubre un gran riesgo o un riesgo que no es grande, y también dónde está situado el riesgo. Para los grandes riesgos, la libertad de elección es, en términos generales, más amplia. Esa distinción, eh, es el primer paso del análisis.",
+      "language": "mixed"
+    },
+    {
+      "startS": 2696,
+      "text": "¿Qué entendemos por grandes riesgos? El Reglamento remite a las categorías definidas en su artículo 7, apartado 2, que a su vez se conectan con la normativa europea de seguros. No hace falta memorizar ahora toda la clasificación sectorial, pero sí recordar la consecuencia conflictual: en los grandes riesgos, las partes pueden elegir la ley aplicable con más libertad que en muchos otros seguros. Ojo, eso no convierte cualquier póliza en un gran riesgo.",
+      "language": "es"
+    },
+    {
+      "startS": 2725.6,
+      "text": "For insurance contracts covering risks situated in a Member State, Article 7 establishes a more restricted regime when the contract is not about a large risk. The parties may choose only among the laws listed in Article 7(3), subject to its conditions. The point is not to grant unlimited party autonomy, but to protect the policyholder and preserve the regulatory interests of the state where the risk is situated.",
+      "language": "en"
+    },
+    {
+      "startS": 2753.3,
+      "text": "Entre las conexiones que pueden permitir la elección en esos supuestos están, según el caso, la ley del Estado miembro donde se sitúa el riesgo, la ley de la residencia habitual del tomador, y ciertas opciones vinculadas al Estado miembro de nacionalidad cuando se trata de seguros de vida. No aprendáis esto como una lista abstracta sin contexto: primero clasificamos el seguro y situamos el riesgo; después vemos cuáles opciones autoriza el apartado 3.",
+      "language": "es"
+    },
+    {
+      "startS": 2783.6,
+      "text": "También hay que distinguir los seguros obligatorios. El artículo 7, apartado 4, establece reglas específicas para ellos y preserva la aplicación de las disposiciones del Estado miembro que impone la obligación de asegurarse. Así que una elección de ley no puede utilizarse, sin más, para vaciar de contenido esa obligación o sus límites. This is a recurring exam trap: confundir la elección permitida para el contrato con el cumplimiento de las normas imperativas aplicables.",
+      "language": "mixed"
+    },
+    {
+      "startS": 2814.2,
+      "text": "Si no hay elección válida, el artículo 7 contiene reglas supletorias propias, que varían según el tipo de seguro. Para ciertos contratos, la conexión relevante es la ley del Estado miembro donde se sitúa el riesgo al tiempo de celebrarse el contrato; para otros supuestos existen conexiones adicionales. Por eso, no trasladéis automáticamente al seguro la regla general del artículo 4. Each special rule must be checked first.",
+      "language": "mixed"
+    },
+    {
+      "startS": 2842.4,
+      "text": "Además, el artículo 7, apartado 6, contiene una regla para los contratos que cubren riesgos situados en varios Estados miembros: en determinadas condiciones, el contrato puede tratarse como una serie de contratos, cada uno referido a un solo Estado miembro. Es una solución práctica cuando una póliza cubre varios riesgos territorialmente dispersos. Pero atención: se aplican las condiciones del propio precepto, no es una división automática de cualquier póliza multinacional.",
+      "language": "es"
+    },
+    {
+      "startS": 2870.7,
+      "text": "La idea de política legislativa se parece, en parte, a lo que vimos en consumo: la autonomía privada no desaparece, pero queda encauzada para evitar que la parte protegida pierda la protección que justifica la regla. En seguros, sin embargo, el diseño es más complejo porque intervienen el tomador, el asegurado, el beneficiario y la localización del riesgo. No asumáis que todos ocupan la misma posición contractual.",
+      "language": "mixed"
+    },
+    {
+      "startS": 2897.9,
+      "text": "Ahora vamos al contrato individual de trabajo, artículo 8. La estructura es clara: las partes pueden elegir la ley, pero esa elección no puede privar al trabajador de la protección que le darían las disposiciones inderogables de la ley aplicable si no hubiese elección. Es decir, la elección no convierte al trabajador en una parte plenamente negociadora, como en un contrato comercial entre empresas. Esto es pregunta de examen.",
+      "language": "es"
+    },
+    {
+      "startS": 2927.1,
+      "text": "Let us make the comparison concrete. A Spanish employer hires a worker who habitually works in Belgium, and the contract chooses Spanish law. The choice is not simply erased, but it cannot deprive the worker of the protection afforded by non-derogable provisions of the law that would apply without that choice. So we compare the chosen law with the objectively applicable law, provision by provision where necessary.",
+      "language": "en"
+    },
+    {
+      "startS": 2955.2,
+      "text": "¿Y cómo determinamos esa ley objetiva? El artículo 8, apartado 2, señala, en primer lugar, el país en el cual o, en su defecto, desde el cual el trabajador desempeña habitualmente su trabajo en ejecución del contrato. La norma añade que ese país no cambia porque el trabajador esté destinado temporalmente a otro país. Ese matiz es importante: desplazamiento temporal no equivale automáticamente a cambio del lugar habitual.",
+      "language": "es"
+    },
+    {
+      "startS": 2982.6,
+      "text": "Aquí entra el asunto Koelzsch, C-29/10. El Tribunal de Justicia interpretó de manera amplia el lugar habitual de trabajo para un conductor de transporte internacional. Hay que localizar el país desde el que el trabajador realiza principalmente sus tareas, donde organiza su actividad, recibe instrucciones y comienza o termina sus viajes, atendiendo a todas las circunstancias. The test is functional, not merely formal.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3008.1,
+      "text": "Por tanto, no basta con mirar dónde está matriculado el camión, dónde está domiciliada la empresa o qué dirección aparece en el contrato. En Koelzsch, la actividad se desarrollaba en varios países, pero eso no impedía encontrar un centro efectivo de actividad. Recordad la pregunta práctica: desde dónde trabaja realmente esta persona, and where does the employment activity have its operational centre? Esa forma de preguntar os ayuda mucho en los casos.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3038.7,
+      "text": "Si no puede determinarse el país de trabajo habitual, el artículo 8, apartado 3, conduce a la ley del país donde esté situado el establecimiento a través del cual el trabajador fue contratado. Es una conexión subsidiaria, no una alternativa libre que el juez pueda elegir porque le parezca cómoda. Primero se intenta aplicar el apartado 2; only if that habitual place cannot be identified do we move to the engaging establishment.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3069,
+      "text": "Voogsgeerd, asunto C-384/10, aclara esa conexión subsidiaria y, aunque interpretaba el Convenio de Roma anterior, sigue siendo relevante para entender la lógica de la norma. El establecimiento debe ser una unidad estable de la empresa relacionada con la contratación; no basta con identificar cualquier sociedad del grupo o una dirección administrativa. The court looks for the establishment through which the worker was actually engaged, not a convenient corporate label.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3098,
+      "text": "En Voogsgeerd también se subraya que el establecimiento de contratación no desplaza la regla del lugar habitual si este puede determinarse. Dicho de otra manera, no empecéis buscando qué oficina firmó los papeles. Primero averiguad dónde trabajaba habitualmente la persona; solo cuando esa conexión fracasa entra el establecimiento. This order matters, and it comes up in the exam every year, especialmente en supuestos de transporte marítimo o internacional.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3126.7,
+      "text": "Queda el apartado 4 del artículo 8: si del conjunto de circunstancias resulta que el contrato presenta vínculos más estrechos con un país distinto del indicado por los apartados 2 o 3, se aplica la ley de ese otro país. Es la cláusula de excepción. No es una invitación a la justicia intuitiva ni una cláusula general para corregir resultados que no nos gustan; exige una valoración global y razonada.",
+      "language": "es"
+    },
+    {
+      "startS": 3156.1,
+      "text": "Schlecker, C-64/12, trata precisamente esa valoración, bajo la disposición anterior equivalente. El Tribunal indicó que pueden considerarse todas las circunstancias de la relación laboral: dónde paga el trabajador sus impuestos y cotizaciones sociales, cómo se fija la remuneración, qué sistema de seguridad social se aplica y otros elementos relevantes. Ningún factor es decisivo por sí solo. The court must assess the employment relationship as a whole.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3183.7,
+      "text": "En Schlecker, el hecho de que la trabajadora hubiese desarrollado su actividad durante muchos años en un país distinto del empleador no agotaba el análisis. Una relación laboral duradera puede mostrar vínculos más estrechos con otro Estado, pero no por una regla automática de duración. Hay que mirar el conjunto. Ojo con convertir un indicio, como la residencia o la sede empresarial, en una presunción irrebatible: el artículo 8 no lo hace.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3214,
+      "text": "Comparemos los tres asuntos. Koelzsch ayuda a identificar de forma amplia el lugar habitual de trabajo; Voogsgeerd confirma que el establecimiento de contratación es subsidiario y debe ser real; Schlecker explica la excepción de vínculos más estrechos. Son tres operaciones distintas, no tres nombres para una misma prueba. Si os dan un caso, aplicadlas en ese orden y justificad cada paso con los hechos concretos.",
+      "language": "es"
+    },
+    {
+      "startS": 3240.4,
+      "text": "One more distinction: the closer-connection clause in Article 8(4) is not the same as the temporary-assignment rule in Article 8(2). A temporary posting does not, by itself, change the habitual country of work. The exception in paragraph 4 asks a broader question about the whole relationship. So first identify the habitual workplace, and only then consider whether the overall circumstances exceptionally point elsewhere.",
+      "language": "en"
+    },
+    {
+      "startS": 3266.8,
+      "text": "Y tampoco confundáis la elección de ley con la elección de foro, ni con una cláusula que diga que solo se aplica el derecho de un país sin respetar el artículo 8. Roma I determina la ley aplicable, no la competencia judicial. En un examen, separad siempre jurisdicción y ley aplicable. Parece elemental, pero los errores empiezan cuando se mezclan instrumentos y preguntas jurídicas distintas.",
+      "language": "es"
+    },
+    {
+      "startS": 3293.3,
+      "text": "Cerramos con el esquema operativo: en seguro, clasificad el riesgo, localizadlo, comprobáis si existe una elección permitida y revisáis las reglas especiales, incluidas las de seguro obligatorio. En trabajo, examinad primero la elección y su límite protector; luego el lugar habitual, después el establecimiento de contratación y, al final, los vínculos más estrechos. That sequence keeps Article 7 and Article 8 manageable, incluso cuando los hechos son internacionales y algo confusos.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3322.5,
+      "text": "Venimos de dos reglas especiales que conviene mantener en el mapa: seguros, artículo 7, y contrato individual de trabajo, artículo 8. Ambas protegen intereses particulares y limitan, de distintas maneras, la libertad de elección de ley. Ahora pasamos a dos mecanismos diferentes, que no son simplemente otra regla de conexión: las leyes de policía del artículo 9 y la excepción de orden público del artículo 21.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3349.1,
+      "text": "Let’s start with the expression overriding mandatory provisions. El artículo 9.1 define estas normas como disposiciones cuyo respeto un país considera crucial para salvaguardar intereses públicos, como su organización política, social o económica, hasta el punto de exigir su aplicación a toda situación comprendida en su ámbito, cualquiera que sea la ley aplicable al contrato. Ojo, no toda norma imperativa interna es automáticamente una ley de policía.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3376.1,
+      "text": "Esa última distinción es básica. Una norma imperativa ordinaria puede impedir que las partes la deroguen cuando rige el contrato, pero una ley de policía pretende aplicarse con independencia de la ley contractual designada por Roma I. So we are talking about a particularly strong claim of application. No basta con que una disposición sea importante o protectora; hay que justificar su carácter imperativo internacional en el sentido del artículo 9.1.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3404.6,
+      "text": "El artículo 9.2 aborda las leyes de policía del foro. Nada en el Reglamento restringe su aplicación, y por tanto el juez español puede aplicar las normas de policía españolas pertinentes, aunque el contrato se rija por una ley extranjera. Pero cuidado: la disposición debe entrar realmente en el ámbito de aplicación de esa norma y debe reunir los requisitos del artículo 9.1; no se convierte en ley de policía por llamarla así.",
+      "language": "es"
+    },
+    {
+      "startS": 3435.3,
+      "text": "Por ejemplo, imaginemos un contrato sometido válidamente a la ley de otro Estado, pero litigado ante un tribunal español. Si una norma española de seguridad o de control económico resulta aplicable como ley de policía, el juez puede darle efecto pese a la elección extranjera. The key question is not simply, “Is this mandatory under Spanish law?” Hay que preguntar si el legislador español quiso imponerla a cualquier situación comprendida en su ámbito.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3466.2,
+      "text": "El artículo 9.3 regula las leyes de policía del país donde las obligaciones derivadas del contrato deben ejecutarse o se han ejecutado, en la medida en que esas normas hagan ilegal la ejecución. El tribunal podrá darles efecto, teniendo en cuenta su naturaleza y finalidad, así como las consecuencias de aplicarlas o no aplicarlas. No es una obligación automática: el texto dice que puede darles efecto, may give effect.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3494.5,
+      "text": "Comparadlo con el apartado segundo: las leyes de policía del foro pueden aplicarse sin que el artículo 9.2 imponga ese examen discrecional específico; las del lugar de ejecución entran por el apartado tercero y con condiciones. Por eso, en un caso práctico, identificad primero el foro, después el lugar de ejecución y, finalmente, la norma invocada. Si mezcláis esos tres elementos, es muy fácil perder el punto central.",
+      "language": "es"
+    },
+    {
+      "startS": 3522.5,
+      "text": "Suppose a Spanish court hears a dispute about a contract governed by English law, and performance was due in France. Una norma francesa que prohíba esa concreta prestación podría plantear el artículo 9.3, si es una ley de policía francesa y la ejecución resulta ilegal conforme a ella. El juez valorará también las consecuencias prácticas. No basta con mencionar una norma francesa imperativa sin explicar por qué satisface esos requisitos.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3550.5,
+      "text": "Aquí entra el asunto Nikiforidis, C-135/15, decidido por el Tribunal de Justicia. El litigio concernía a un profesor griego empleado en Alemania por una institución escolar griega, bajo un contrato regido por la ley alemana. Grecia había adoptado medidas de reducción salarial durante la crisis económica, y se discutía si esas disposiciones griegas podían influir en la determinación de la remuneración contractual del profesor.",
+      "language": "es"
+    },
+    {
+      "startS": 3577.3,
+      "text": "The Court read Article 9 narrowly in this respect. Las normas griegas no eran leyes de policía del foro alemán, y tampoco eran normas del país donde se ejecutaban las obligaciones contractuales, que en el caso era Alemania. Por eso, no podían aplicarse a través del artículo 9.3 como leyes de policía del lugar de ejecución. La nacionalidad griega de las partes o de la institución no cambiaba ese análisis.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3606.1,
+      "text": "Pero el Tribunal no dijo que las normas griegas fueran jurídicamente irrelevantes en cualquier sentido. Podían tenerse en cuenta como elemento de hecho, en la medida en que el Derecho aplicable al contrato lo permitiera. This is a subtle but examinable distinction: no aplicación directa como ley de policía, pero posible consideración fáctica bajo la ley rectora del contrato.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3630.3,
+      "text": "Así que, en Nikiforidis, no escribáis que el Tribunal aplicó las medidas griegas, ni que las declaró siempre irrelevantes. La respuesta correcta es más matizada: el artículo 9.3 se refiere a normas del país de ejecución, y las normas de un tercer país no entran por esa vía; aun así, pueden ser consideradas como hechos si lo permite la ley aplicable. Esto es pregunta de examen.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3657.9,
+      "text": "Otro detalle importante del asunto es que la definición del artículo 9.1 no convierte cualquier política pública en una ley de policía. El Estado que pretende imponer una norma debe mostrar ese carácter especialmente crucial y su intención de aplicarla a situaciones dentro de su ámbito, con independencia de la ley contractual. Think of the exceptional nature of the mechanism: es una excepción a la aplicación normal de la ley designada.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3687,
+      "text": "Ahora distingamos esto del artículo 21, la excepción de orden público. El tribunal puede excluir una disposición de la ley de cualquier país designada por Roma I solamente si su aplicación resulta manifiestamente incompatible con el orden público del foro. La palabra “manifiestamente” importa mucho. No es una autorización para sustituir la ley extranjera simplemente porque al juez le parezca distinta o menos conveniente que la española.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3714.4,
+      "text": "Las leyes de policía y el orden público operan, por tanto, desde direcciones distintas. Con una ley de policía, una norma concreta del foro reclama aplicación directa pese a la ley contractual. Con el artículo 21, el juez aparta, de manera excepcional, un resultado de la ley designada por considerarlo manifiestamente inaceptable. Una es una pretensión positiva de aplicación; la otra, una válvula negativa de exclusión.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3741.7,
+      "text": "Por ejemplo, que una ley extranjera permita una solución diferente a la del Derecho español no basta para invocar el artículo 21. El control recae sobre el resultado concreto de aplicar esa ley en el litigio, y la incompatibilidad debe ser manifiesta. La excepción se interpreta restrictivamente, respetando la previsibilidad y la aplicación uniforme del Reglamento. This is not a general fairness review of foreign law.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3768.8,
+      "text": "Pregunta típica: “¿Puede el juez aplicar una norma imperativa del foro aunque el contrato se rija por otra ley?” Contestad: sí, si se trata de una ley de policía en el sentido del artículo 9.1 y resulta aplicable al caso; el artículo 9.2 deja a salvo las del foro. Después explicad que una norma imperativa ordinaria no basta. Esa precisión suele separar una respuesta correcta de una respuesta completa.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3796.6,
+      "text": "Otra pregunta frecuente: “¿Puede aplicarse una ley de policía extranjera?” La respuesta no es un sí general. El artículo 9.3 permite al juez dar efecto a las del país donde se ejecutan o se han ejecutado las obligaciones, cuando hacen ilegal la ejecución, y tras considerar naturaleza, finalidad y consecuencias. Las normas de un tercer Estado no quedan incluidas por ese apartado. Here, identify the place of performance carefully.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3824.6,
+      "text": "Y si os preguntan por Nikiforidis, decid tres cosas ordenadas: primero, el contrato estaba sometido a Derecho alemán; segundo, las medidas griegas no eran leyes de policía del foro ni del lugar de ejecución, Alemania; tercero, podían tomarse en consideración como hecho si lo permitía la ley aplicable. No os quedéis en una frase vaga como “las leyes extranjeras no se aplican”, porque eso sería demasiado amplio.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3851.6,
+      "text": "Pregunta de comparación: “¿Cuál es la diferencia entre el artículo 9 y el artículo 21?” Responded que el artículo 9 permite dar eficacia a normas de policía que reclaman aplicación necesaria, mientras el 21 permite excluir una disposición de la ley designada solo ante incompatibilidad manifiesta con el orden público del foro. Añadid que ambos son excepcionales, pero cumplen funciones distintas. Esto comes up in the exam every year.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3879.3,
+      "text": "También puede aparecer un supuesto con una cláusula de elección de ley y una norma española de protección. No concluyáis inmediatamente que la cláusula es nula: primero comprobad si la norma española tiene carácter de ley de policía y si el caso está dentro de su ámbito. Si no lo tiene, habrá que resolver conforme a la ley aplicable y a las demás reglas pertinentes de Roma I.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3906.4,
+      "text": "Conectamos de nuevo con los artículos 7 y 8. En seguros y trabajo, el propio Reglamento establece reglas especiales de conexión y protección; en el artículo 9 hablamos de normas imperativas cualificadas que pueden interferir con la ley contractual; y el artículo 21 opera excepcionalmente frente a un resultado concreto. No confundáis estos niveles: las reglas especiales no son, por sí solas, leyes de policía.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3933.4,
+      "text": "Para resolver un caso, podéis seguir este orden: determinad la ley del contrato, aplicando primero las reglas pertinentes, incluidos los artículos 7 u 8 si corresponde; identificad cualquier ley de policía del foro bajo el artículo 9.2; examinad las del lugar de ejecución bajo el 9.3; y solo entonces preguntad si procede el artículo 21. Es un método práctico, y además evita tratar todas las excepciones como si fueran iguales.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3962,
+      "text": "Cierro con la idea que quiero que os llevéis: la ley aplicable al contrato sigue siendo el punto de partida. Las leyes de policía no son una puerta abierta para ignorarla, y el orden público tampoco permite corregir cualquier diferencia entre sistemas jurídicos. Hay que argumentar cada requisito con precisión: carácter de la norma, lugar relevante, ilegalidad de la ejecución o incompatibilidad manifiesta. Vale, con esto dejamos asentada la distinción para los casos prácticos.",
+      "language": "mixed"
+    },
+    {
+      "startS": 3992,
+      "text": "Venimos de las leyes de policía del artículo 9, que pueden imponerse pese a la ley elegida por las partes, en los supuestos y con los límites que ya vimos. Ahora cambiamos de pregunta: no qué norma imperativa desplaza la ley contractual, sino cómo determina Roma I si hubo consentimiento y qué ley decide la validez material. Son planos distintos, eh, y conviene no mezclarlos en el examen.",
+      "language": "mixed"
+    },
+    {
+      "startS": 4021,
+      "text": "El artículo 10 se ocupa de la existencia y la validez material del contrato, o de una cláusula. La regla básica es contrafáctica: se aplica la ley que regiría el contrato, o la cláusula, si fuera válido. Es decir, primero identificamos la ley aplicable conforme al Reglamento y después preguntamos, bajo esa ley, si existió consentimiento y si el acuerdo es materialmente válido.",
+      "language": "es"
+    },
+    {
+      "startS": 4046.3,
+      "text": "Por ejemplo, imaginad que una empresa española y una francesa discuten si realmente aceptaron una cláusula de exclusividad. Si el contrato se rige por la ley francesa, en principio esa misma ley determina si hubo consentimiento y si la cláusula es válida. No saltamos automáticamente al Derecho español porque el litigio se presente aquí. The governing law supplies the substantive test, subject to the particular safeguard in Article 10(2).",
+      "language": "mixed"
+    },
+    {
+      "startS": 4074.8,
+      "text": "Ojo, el artículo 10 no resuelve por sí solo todas las cuestiones de capacidad ni todas las formalidades. Consentimiento y validez material son su núcleo: error, dolo, coacción y cuestiones semejantes, dependiendo de la calificación que corresponda. Y si el debate es si una persona tenía capacidad jurídica para contratar, nos iremos al artículo 13, que veremos enseguida. La calificación concreta puede dar problemas, así que explicad siempre qué cuestión estáis resolviendo.",
+      "language": "mixed"
+    },
+    {
+      "startS": 4103.8,
+      "text": "Article 10 also contains a useful exception in paragraph 2. A party may rely on the law of the country of its habitual residence to establish that it did not consent, if it would not be reasonable to determine the effect of that party’s conduct under the law identified by paragraph 1. This is not a general escape from the applicable law; it is a narrowly framed protection in a dispute about consent.",
+      "language": "en"
+    },
+    {
+      "startS": 4134.2,
+      "text": "Pensemos en una persona que, por circunstancias del caso, no podía prever razonablemente que una conducta suya se interpretaría como aceptación conforme a la ley que normalmente rige el contrato. Podría invocar la ley de su residencia habitual para negar que consintió, si se cumple el criterio de razonabilidad. No basta con que esa ley le resulte más favorable: hay que justificar por qué no era razonable aplicar la ley del párrafo primero.",
+      "language": "es"
+    },
+    {
+      "startS": 4163.3,
+      "text": "Esto es pregunta de examen: distinguid la regla general del artículo 10.1 y la excepción del 10.2. No digáis simplemente que el consentimiento se rige por la ley de la residencia habitual, porque eso invierte la estructura. First identify the law that would govern the contract if valid; then consider whether the exceptional reliance on habitual-residence law is available. Esa secuencia importa, y mucho.",
+      "language": "mixed"
+    },
+    {
+      "startS": 4189.9,
+      "text": "Pasamos a la validez formal, artículo 11. Aquí hablamos de cómo debe exteriorizarse el contrato: por ejemplo, si hace falta un documento escrito, una firma o alguna formalidad adicional. La norma busca favorecer la validez formal mediante conexiones alternativas. En términos sencillos, muchas veces basta con que el contrato cumpla los requisitos de forma de una de las leyes que el artículo considera pertinentes.",
+      "language": "es"
+    },
+    {
+      "startS": 4215.5,
+      "text": "For parties who are in the same country when they conclude the contract, Article 11(1) provides alternative routes: the contract is formally valid if it satisfies the formal requirements of the law governing it under the Regulation, or of the law of the country where it is concluded. Así que no tratéis la forma como si tuviera necesariamente una única ley aplicable; el artículo facilita que el acuerdo sobreviva a diferencias formales.",
+      "language": "mixed"
+    },
+    {
+      "startS": 4244.9,
+      "text": "Si las partes están en países distintos cuando contratan, entra en juego el artículo 11.2: se consideran, en particular, la ley que rige el contrato y las leyes de los países donde se encuentran las partes o sus agentes, además de la ley del país de residencia habitual de cualquiera de ellas. La aplicación concreta depende del supuesto y del texto del apartado; no reduzcáis esta regla a «lugar de firma» sin más.",
+      "language": "es"
+    },
+    {
+      "startS": 4275.6,
+      "text": "There are specific rules for contracts concerning immovable property and for consumer contracts, so do not mechanically apply the general alternatives without checking the remaining paragraphs of Article 11. En un contrato sobre un inmueble, por ejemplo, la forma puede estar vinculada a la ley del país donde se encuentra el bien. El mensaje general es favor validitatis, pero siempre dentro de las conexiones y condiciones que establece el propio artículo.",
+      "language": "mixed"
+    },
+    {
+      "startS": 4303.8,
+      "text": "Un ejemplo sencillo: dos comerciantes en España concluyen un contrato sujeto a una ley extranjera que exige una formalidad distinta. El artículo 11 puede permitir validar el contrato si satisface la forma exigida por la ley del lugar de celebración, aunque no cumpla la ley rectora. Pero primero hay que determinar dónde estaban las partes al contratar y comprobar si se aplica una regla especial. No inventéis una conexión sin hechos.",
+      "language": "es"
+    },
+    {
+      "startS": 4332.3,
+      "text": "Y otra advertencia: validez formal no es validez material. Que un documento tenga la forma exigida no demuestra que hubiera consentimiento libre, ni que la cláusula sea sustantivamente válida. Conversely, a contract may be substantively sound but fail a formal requirement under every relevant law. En el análisis, separad ambos problemas y asignad a cada uno su artículo: 11 para forma, 10 para existencia y validez material.",
+      "language": "mixed"
+    },
+    {
+      "startS": 4360.6,
+      "text": "Ahora, capacidad: el Reglamento Roma I no establece una regla general completa para la capacidad de las personas físicas. El artículo 13 contiene una regla especial y limitada. Se refiere a personas físicas que se encuentran en el mismo país cuando concluyen el contrato y, en determinadas condiciones, impide que una de ellas invoque una incapacidad derivada de otra ley.",
+      "language": "es"
+    },
+    {
+      "startS": 4385.3,
+      "text": "The mechanism is this: if the contract is concluded between persons who are in the same country, a natural person who would be capable under that country’s law may not invoke incapacity under another law, unless the other party knew of that incapacity or was negligent in not knowing it. La idea es proteger la confianza de quien contrata en el mismo lugar, pero no cuando conocía, o debía conocer, la incapacidad relevante.",
+      "language": "mixed"
+    },
+    {
+      "startS": 4415.2,
+      "text": "Imaginad que dos personas firman un contrato en el mismo país y una de ellas sería capaz conforme a la ley de ese país, aunque su ley personal establezca una incapacidad. En principio, no podrá usar esa otra ley para deshacer el contrato frente a la contraparte. Pero si la otra parte conocía la incapacidad, o fue negligente al ignorarla, la protección del artículo 13 no opera. Atención a ese límite.",
+      "language": "es"
+    },
+    {
+      "startS": 4443.4,
+      "text": "No confundáis este artículo con una norma universal sobre capacidad. Si las partes no estaban en el mismo país al concluir, la condición central del artículo 13 no se cumple y habrá que acudir a las normas pertinentes, incluidas las que queden fuera del ámbito material de Roma I. Also, do not assume that every issue labelled capacity is automatically governed by Article 13; identify the parties, their location, and the precise legal question.",
+      "language": "mixed"
+    },
+    {
+      "startS": 4472.9,
+      "text": "Esta regla puede caer en el examen precisamente por su alcance restringido. Mencionad los tres elementos: personas físicas, mismo país al concluir y posibilidad de invocar la incapacidad bajo otra ley, con la excepción del conocimiento o negligencia de la otra parte. No hace falta convertirlo en una teoría general de la capacidad. La aplicación es casuística, así que los hechos sobre dónde estaban las personas resultan decisivos.",
+      "language": "es"
+    },
+    {
+      "startS": 4501,
+      "text": "Cerramos con el ámbito de la ley aplicable, artículo 12. Una vez que sabemos qué ley rige el contrato, esta ley gobierna, en particular, su interpretación. Si las partes discuten qué significa una expresión contractual, no empezamos buscando el sentido que tendría bajo nuestro Derecho nacional; acudimos a la ley rectora, salvo las cuestiones específicas que el Reglamento reserva a otras reglas.",
+      "language": "mixed"
+    },
+    {
+      "startS": 4527.4,
+      "text": "El artículo 12 también comprende el cumplimiento de las obligaciones y, dentro de sus límites, las consecuencias del incumplimiento, incluida la evaluación de los daños cuando esté regida por la ley contractual. Por ejemplo, si una entrega llega tarde, la ley aplicable determina qué obligaciones existían y qué remedios contractuales proceden. Pero cuidado: el Reglamento no convierte cualquier cuestión relacionada con los hechos en una cuestión contractual.",
+      "language": "es"
+    },
+    {
+      "startS": 4555.3,
+      "text": "La ley rectora regula asimismo las formas de extinguir las obligaciones, las reglas sobre prescripción y caducidad, y las consecuencias de la nulidad del contrato. This is why you should not automatically apply the forum’s limitation period just because proceedings are brought there. Si la prescripción afecta a la obligación contractual, el artículo 12 la incluye en el ámbito de la ley aplicable al contrato.",
+      "language": "mixed"
+    },
+    {
+      "startS": 4581.2,
+      "text": "Hay, además, una precisión importante en el artículo 12.2: respecto de la manera de ejecutar la prestación y de las medidas que debe adoptar el acreedor en caso de ejecución defectuosa, se tendrá en cuenta la ley del país donde se ejecuta la prestación. No significa que esa ley sustituya en bloque a la ley contractual; es un factor específico para valorar esas modalidades prácticas.",
+      "language": "es"
+    },
+    {
+      "startS": 4607.8,
+      "text": "Por ejemplo, la ley contractual puede determinar qué cuenta como cumplimiento debido, mientras que las prácticas y medidas razonables ante una entrega defectuosa pueden requerir atender al lugar de ejecución. Separate the governing rule from the local practical context. Y no olvidéis que la calificación y las cuestiones procesales pueden ser discutidas: no todo lo que aparece durante el litigio queda automáticamente dentro del artículo 12.",
+      "language": "mixed"
+    },
+    {
+      "startS": 4635.3,
+      "text": "Recapitulamos, vale: artículo 10, consentimiento y validez material; artículo 11, validez formal con conexiones que favorecen la forma; artículo 13, capacidad en el supuesto limitado de personas físicas presentes en el mismo país; y artículo 12, alcance de la ley contractual, incluyendo interpretación, cumplimiento, incumplimiento y prescripción. Esto es pregunta de examen: separad cada problema, identificad su artículo y explicad la conexión aplicable antes de dar una conclusión.",
+      "language": "mixed"
+    },
+    {
+      "startS": 4663.8,
+      "text": "Vale, llegamos a la última parte y vamos a cerrar el mapa. Veníamos de los artículos 10, 11, 13 y 12: validez material, forma, capacidad y alcance de la ley aplicable. No los mezcléis con las reglas de hoy. Ahora aparecen cuestiones sobre créditos, subrogación, compensación y prueba, que también pueden ser decisivas cuando resolvemos un contrato internacional.",
+      "language": "es"
+    },
+    {
+      "startS": 4687.8,
+      "text": "Quick reminder: Article 10 deals with material validity, including consent, while Article 11 addresses formal validity. Article 13 concerns capacity, with its particular rule for a natural person, and Article 12 tells us what the applicable law governs. So, if the question is whether a party consented freely, do not jump straight to assignment or evidence rules; first identify the issue correctly.",
+      "language": "en"
+    },
+    {
+      "startS": 4714.3,
+      "text": "Y ojo con una confusión que se repite: el artículo 12 no dice que la ley aplicable gobierne absolutamente todo lo imaginable. Enumera, entre otras cosas, la interpretación, el cumplimiento, las consecuencias del incumplimiento y las formas de extinción de las obligaciones. Pero hoy veremos reglas específicas para ciertas relaciones, y hay que leerlas junto con ese marco general, no en sustitución automática.",
+      "language": "es"
+    },
+    {
+      "startS": 4741.1,
+      "text": "Let’s start with Article 14, the voluntary assignment of claims. Think of a Spanish supplier that transfers to a bank its claim against a French customer. There are two relationships here, and that distinction is the key: the contract between supplier and bank is one relationship; the claim being transferred, and the debtor’s position, are another. Keep those tracks separate from the beginning.",
+      "language": "en"
+    },
+    {
+      "startS": 4766.5,
+      "text": "La relación entre cedente y cesionario, es decir, entre quien transmite el crédito y quien lo recibe, se rige por la ley aplicable al contrato que los vincula. Por ejemplo, si el contrato de cesión elige válidamente la ley española, esa ley determina sus obligaciones recíprocas. No confundáis esa cuestión con la ley que rige el crédito frente al deudor, porque el artículo 14 distingue expresamente ambas.",
+      "language": "es"
+    },
+    {
+      "startS": 4794.6,
+      "text": "The law governing the assigned claim determines whether that claim is assignable, the relationship between the assignee and the debtor, the conditions under which the assignment may be invoked against the debtor, and whether the debtor’s performance discharges the obligation. So, if the debtor has already paid the original creditor, ask which law governs the claim and whether payment discharged the debtor.",
+      "language": "en"
+    },
+    {
+      "startS": 4820.7,
+      "text": "Esto es pregunta de examen: cedente y cesionario pactan una ley, pero el deudor no participa en ese pacto. No podéis asumir que esa elección, por sí sola, altera la posición del deudor. Para saber si la cesión se le puede oponer y cuándo queda liberado pagando, mirad la ley que rige el crédito cedido, conforme al artículo 14.",
+      "language": "es"
+    },
+    {
+      "startS": 4845.6,
+      "text": "There is also a practical point in Article 14: the concept of assignment includes transfers by way of security and pledges or other security rights over claims. Don’t reduce the provision to a simple sale of debt. A bank taking a receivable as collateral may raise the same connecting questions. The exam may describe the transaction in commercial language, so identify its legal function.",
+      "language": "en"
+    },
+    {
+      "startS": 4871.6,
+      "text": "Pasamos a la subrogación del artículo 15. Aquí un tercero cumple una obligación frente al acreedor y, por ese pago, puede ocupar la posición del acreedor frente al deudor. Imaginad una aseguradora que indemniza a su asegurado y luego reclama al responsable. La pregunta de conflicto no es solo quién pagó, sino qué ley determina si opera la subrogación y hasta dónde alcanza.",
+      "language": "es"
+    },
+    {
+      "startS": 4897,
+      "text": "Article 15 concerns legal subrogation where a person, the third party, is bound to satisfy the creditor or has in fact satisfied the creditor in discharge of that obligation. The law governing the third party’s obligation to satisfy the creditor determines whether, and to what extent, the third party may exercise the creditor’s rights against the debtor under the law governing their relationship.",
+      "language": "en"
+    },
+    {
+      "startS": 4922.4,
+      "text": "En el ejemplo del seguro, identificad primero la obligación de la aseguradora frente al asegurado. La ley que gobierna esa obligación determina el alcance de la subrogación legal de la aseguradora. Después, la relación entre acreedor y deudor sigue conectada con su propia ley aplicable. Eh, no digáis simplemente «se aplica la ley del seguro a todo»: precisad qué cuestión concreta responde cada ley.",
+      "language": "es"
+    },
+    {
+      "startS": 4949.2,
+      "text": "Article 16 is related, but it is not the same rule. Suppose several debtors are liable for the same claim, and one of them pays the creditor. That paying debtor may have a right of recourse against the others. The law applicable to the paying debtor’s obligation towards the creditor governs that right of recourse. Be precise about the sequence: liability first, payment second, recourse third.",
+      "language": "en"
+    },
+    {
+      "startS": 4976,
+      "text": "Este artículo evita que el pago de uno de varios deudores deje sin respuesta la distribución interna de la deuda. Pero no lo confundáis con el artículo 15: en el 15 el protagonista es un tercero que satisface al acreedor y puede subrogarse; en el 16, el que paga es uno de varios deudores responsables del mismo crédito. The labels matter, because the connecting rule changes.",
+      "language": "mixed"
+    },
+    {
+      "startS": 5003.4,
+      "text": "Ahora, compensación, artículo 17. Si las partes no han acordado la compensación, esta se rige por la ley aplicable al crédito contra el que se invoca. Es decir, identificad primero cuál es la pretensión que una parte quiere neutralizar mediante compensación. No elijáis sin más la ley del crédito que se usa como contracrédito, ni la ley del domicilio de una de las partes.",
+      "language": "es"
+    },
+    {
+      "startS": 5030.3,
+      "text": "For example, a Spanish company claims payment from an Italian company under a contract governed by Spanish law, while the Italian company invokes a separate counterclaim. If there is no agreement on set-off, Article 17 points to the law governing the claim against which set-off is asserted. That law tells us whether set-off is available and under what conditions, subject to the applicable procedural framework.",
+      "language": "en"
+    },
+    {
+      "startS": 5056.6,
+      "text": "Y cuidado: el artículo 17 empieza con la idea de que las partes no han acordado la compensación. Si existe un acuerdo relevante, habrá que analizarlo correctamente, incluida su ley aplicable y su validez; no se resuelve mecánicamente aplicando el artículo 17 como si el acuerdo no existiera. En el examen, explicad qué crédito es el principal y contra cuál se opone la compensación.",
+      "language": "es"
+    },
+    {
+      "startS": 5082.7,
+      "text": "Article 18 turns to evidence. The law governing the contractual obligation applies, insofar as it contains rules on legal presumptions or the burden of proof. So if the dispute concerns who must prove a particular contractual fact, check whether the applicable substantive law provides a rule. Do not assume every evidential question is automatically governed by the law of the forum.",
+      "language": "en"
+    },
+    {
+      "startS": 5108.1,
+      "text": "Pero el artículo 18 también permite tener en cuenta formas de prueba reconocidas por la ley del foro o por la ley de uno de los lugares donde se ejecuta el acto, siempre que el tribunal pueda administrar esa forma de prueba. Esa precisión es importante: no significa que cualquier prueba sea admisible sin límites. Separad las reglas sobre carga de la prueba de los medios concretos de prueba.",
+      "language": "es"
+    },
+    {
+      "startS": 5135.5,
+      "text": "So, a judge may apply the substantive law governing the contract to presumptions and burden of proof, while considering an evidential method recognised by the forum law or by the law of a place where the act was performed, if the court can administer it. This is a nuanced provision, not a blank cheque. Please state both parts rather than stopping after the first sentence.",
+      "language": "en"
+    },
+    {
+      "startS": 5162.4,
+      "text": "Repaso de errores frecuentes: uno, confundir la ley del contrato de cesión con la ley del crédito cedido; dos, tratar la subrogación de los artículos 15 y 16 como si fuera idéntica; tres, identificar mal el crédito contra el que se invoca la compensación; y cuatro, decir que toda cuestión probatoria se rige siempre por la ley procesal del foro. Esto cae, de verdad, cae.",
+      "language": "es"
+    },
+    {
+      "startS": 5189,
+      "text": "Another common mistake is to cite Article 12 as though it answered every conflict question, without checking for a more specific provision. Article 12 gives the general scope of the applicable law; Articles 14 to 18 address particular matters. Also, don’t confuse applicable law with jurisdiction: Rome I tells us which law governs contractual obligations, not which court has jurisdiction to hear the dispute.",
+      "language": "en"
+    },
+    {
+      "startS": 5215.6,
+      "text": "Método para el caso práctico: primero, calificad cada cuestión jurídica por separado; segundo, comprobad que está dentro del ámbito material de Roma I; tercero, determinad la ley aplicable al contrato, incluida una posible elección; y cuarto, aplicad la regla específica pertinente, como el artículo 14 o el 17. No empecéis buscando artículos al azar: empezad por formular la pregunta jurídica con precisión.",
+      "language": "es"
+    },
+    {
+      "startS": 5242.2,
+      "text": "Then explain the connecting factor and apply it to the facts. For an assignment, name both relationships; for subrogation, say who paid and under which obligation; for set-off, identify the claim against which it is asserted; for evidence, distinguish burden of proof from admissible modes of proof. If facts are missing, state what additional fact you need instead of inventing it. That is good legal method.",
+      "language": "en"
+    },
+    {
+      "startS": 5269.3,
+      "text": "Y cierro enlazando con toda la sesión: consentimiento y validez material, artículo 10; forma, artículo 11; capacidad, artículo 13; alcance, artículo 12; y ahora cesión, subrogación, compensación y prueba, artículos 14 a 18. Repetid la pregunta antes de dar la ley: ¿qué cuestión concreta estoy resolviendo y cuál es su regla de conflicto? Si hacéis eso, evitáis la mayoría de errores. Okay, nos vemos en el examen.",
+      "language": "mixed"
+    }
+  ]
+}

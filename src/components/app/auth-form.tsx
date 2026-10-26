@@ -38,7 +38,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
   const isLogin = mode === "login";
   return (
-    <div className="flex min-h-dvh items-center justify-center px-4 py-12">
+    <main className="flex min-h-dvh items-center justify-center px-4 py-12">
       <div className="w-full max-w-[380px]">
         <Logo className="mb-10" />
         <h1 className="text-[26px] font-semibold tracking-[-0.02em]">
@@ -103,6 +103,6 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           .
         </p>
       </div>
-    </div>
+    </main>
   );
 }

@@ -181,7 +181,12 @@ export function LecturePage({ id }: { id: string }) {
               <Skeleton className="h-4 w-32" />
             )}
             <h1 className="mt-1 text-[24px] font-semibold leading-tight tracking-[-0.02em] sm:text-[28px]">
-              {l?.title ?? <Skeleton className="h-8 w-80" />}
+              {l?.title ?? (
+                <>
+                  <span className="sr-only">Cargando clase…</span>
+                  <Skeleton className="h-8 w-80" />
+                </>
+              )}
             </h1>
             {l ? (
               <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13.5px] text-muted">

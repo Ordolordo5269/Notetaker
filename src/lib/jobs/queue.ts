@@ -46,7 +46,13 @@ async function failStalledJobs(db: Db, where: SQL | undefined): Promise<void> {
               now - STALL_MS,
             ),
           ),
-          and(eq(processingJobs.status, "queued"), lt(processingJobs.createdAt, now - STALL_MS)),
+          and(
+            eq(processingJobs.status, "queued"),
+            lt(
+              sql`coalesce(${processingJobs.heartbeatAt}, ${processingJobs.updatedAt}, ${processingJobs.createdAt})`,
+              now - STALL_MS,
+            ),
+          ),
         ),
       ),
     );
@@ -168,6 +174,7 @@ export async function enqueueJob(
     runner: env.JOBS_WORKFLOW ? "workflow" : "local",
     attempt: 1,
     createdAt: now,
+    heartbeatAt: now,
     updatedAt: now,
   });
   if (input.sessionId) {
@@ -244,6 +251,8 @@ export async function retryJob(env: CloudflareEnv, db: Db, userId: string, jobId
     .update(processingJobs)
     .set({
       status: "queued",
+      heartbeatAt: now,
+      startedAt: null,
       stage: "queued",
       error: null,
       finishedAt: null,

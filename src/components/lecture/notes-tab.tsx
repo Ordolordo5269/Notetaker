@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import dynamic from "next/dynamic";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { FileText, History, MoreHorizontal, Pencil, RefreshCw, Sparkles } from "lucide-react";
@@ -21,8 +22,13 @@ import { ExportMenu } from "./export-menu";
 import { EstimateLine, LanguageSelect, LaunchJobButton, useDefaultLanguage, type NotesLanguage } from "./generation";
 import { activeJob, JobDone, JobFailure, JobProgress, latestJob, useJobs } from "./job-progress";
 import type { LectureDetail } from "./lecture-page";
-import { SectionEditor } from "./section-editor";
 import { VersionHistoryDialog } from "./version-history";
+
+// The rich-text editor (Tiptap) is only loaded when a section is being edited.
+const SectionEditor = dynamic(() => import("./section-editor").then((m) => m.SectionEditor), {
+  ssr: false,
+  loading: () => <Skeleton className="h-64 rounded-2xl" />,
+});
 
 export function useDocuments(sessionId: string) {
   return useQuery({

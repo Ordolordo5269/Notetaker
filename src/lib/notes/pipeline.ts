@@ -67,6 +67,7 @@ export const STAGES = {
 const MAX_SECTION_CONTEXT_TOKENS = 14_000;
 const MAX_ATTACHMENT_TOKENS_PER_SECTION = 3_000;
 const DRAFT_CONCURRENCY = 3;
+const EXTRACT_CONCURRENCY = 3;
 
 interface LectureContext {
   title: string;
@@ -216,28 +217,35 @@ async function notesHandler(ctx: JobContext): Promise<Record<string, unknown>> {
   const dominant = transcript.dominantLanguage;
   const subjectLine = lecture.subjectName ? `Asignatura: ${lecture.subjectName}. ` : "";
 
-  // Step 2 — per-block extraction.
-  await ctx.setStage(STAGES.topics);
-  const extractions: BlockExtraction[] = [];
-  for (const block of transcript.blocks) {
-    await assertNotCancelled(ctx);
-    const result = await ctx.step(`extract:${block.index}`, async () => {
-      const text = renderRange(transcript.segments, block.seqFrom, block.seqTo);
-      const { data, usage } = await createStructured<BlockExtraction>(config, {
-        model: config.models.fast,
-        system: extractionSystem,
-        user: `${subjectLine}Clase: "${lecture.title}". Bloque ${block.index + 1} de ${transcript.blocks.length} (${formatClock(block.startMs)}–${formatClock(block.endMs)}).\n\nTRANSCRIPCIÓN:\n${text}`,
-        schema: extractionSchema,
-        reasoningEffort: "low",
-        maxOutputTokens: 6000,
+  // Step 2 — per-block extraction (bounded concurrency; a 90-minute class has ~10 blocks).
+  await ctx.setStage(`${STAGES.topics} (0/${transcript.blocks.length})`);
+  const extractions: BlockExtraction[] = new Array(transcript.blocks.length);
+  let extracted = 0;
+  const blockQueue = [...transcript.blocks];
+  const extractWorkers = Array.from({ length: Math.min(EXTRACT_CONCURRENCY, blockQueue.length) }, async () => {
+    while (blockQueue.length) {
+      const block = blockQueue.shift()!;
+      await assertNotCancelled(ctx);
+      extractions[block.index] = await ctx.step(`extract:${block.index}`, async () => {
+        const text = renderRange(transcript.segments, block.seqFrom, block.seqTo);
+        const { data, usage } = await createStructured<BlockExtraction>(config, {
+          model: config.models.fast,
+          system: extractionSystem,
+          user: `${subjectLine}Clase: "${lecture.title}". Bloque ${block.index + 1} de ${transcript.blocks.length} (${formatClock(block.startMs)}–${formatClock(block.endMs)}).\n\nTRANSCRIPCIÓN:\n${text}`,
+          schema: extractionSchema,
+          reasoningEffort: "low",
+          maxOutputTokens: 6000,
+        });
+        await usageTotal(ctx, config.models.fast, usage);
+        return data;
       });
-      await usageTotal(ctx, config.models.fast, usage);
-      return data;
-    });
-    extractions.push(result);
-  }
+      extracted++;
+      await ctx.setStage(`${STAGES.topics} (${extracted}/${transcript.blocks.length})`);
+    }
+  });
+  await Promise.all(extractWorkers);
 
-  // Step 3 — global outline.
+  // Step 3 — global outline. Output budget grows with the lecture (it also covers reasoning tokens).
   await ctx.setStage(STAGES.outline);
   const outline = await ctx.step("outline", async () => {
     const markersText = lecture.markers.length
@@ -256,7 +264,7 @@ ELEMENTOS EXTRAÍDOS POR BLOQUE:
 ${extractionDigest(extractions, transcript.blocks)}`,
       schema: outlineSchema,
       reasoningEffort: "medium",
-      maxOutputTokens: 6000,
+      maxOutputTokens: Math.min(16_000, 6000 + transcript.blocks.length * 700),
     });
     await usageTotal(ctx, config.models.notes, usage);
     return data;
@@ -305,7 +313,7 @@ ${extractionDigest(extractions, transcript.blocks)}`,
       user: `LISTA DE CONTROL (${checklist.length} elementos):\n${checklist.map((c) => `- ${c}`).join("\n")}\n\nBORRADOR:\n${draftText}`,
       schema: reviewSchema,
       reasoningEffort: "medium",
-      maxOutputTokens: 5000,
+      maxOutputTokens: Math.min(12_000, 5000 + transcript.blocks.length * 400),
     });
     await usageTotal(ctx, config.models.notes, usage);
     return data;

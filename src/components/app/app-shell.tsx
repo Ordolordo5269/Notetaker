@@ -62,7 +62,7 @@ function SidebarContent({ user, onNavigate }: { user: ShellUser; onNavigate?: ()
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-14 items-center px-4">
-        <Link href="/" onClick={onNavigate} aria-label="Inicio">
+        <Link href="/" onClick={onNavigate} aria-label="StudyFlow, inicio">
           <Logo />
         </Link>
       </div>
@@ -140,7 +140,10 @@ export function AppShell({ user, children }: { user: ShellUser; children: React.
   const [mobileOpen, setMobileOpen] = React.useState(false);
   return (
     <div className="flex min-h-dvh">
-      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 border-r border-border bg-background lg:block">
+      <aside
+        aria-label="Barra lateral"
+        className="sticky top-0 hidden h-dvh w-60 shrink-0 border-r border-border bg-background lg:block"
+      >
         <SidebarContent user={user} />
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
@@ -165,7 +168,7 @@ export function AppShell({ user, children }: { user: ShellUser; children: React.
               </D.Content>
             </D.Portal>
           </D.Root>
-          <Link href="/" aria-label="Inicio">
+          <Link href="/" aria-label="StudyFlow, inicio">
             <Logo />
           </Link>
         </header>

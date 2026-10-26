@@ -125,6 +125,7 @@ export function DocumentsTab({
           multiple
           className="sr-only"
           id="attachment-input"
+          aria-label="Elegir archivos"
           onChange={(e) => void upload(e.target.files)}
         />
         <Button variant="primary" className="mt-4" disabled={uploading} onClick={() => inputRef.current?.click()}>
