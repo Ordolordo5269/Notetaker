@@ -53,6 +53,8 @@ import {
   type SourceSegment,
 } from "./transcript";
 import { countWords, type DocumentSection, type StudyDocumentContent, type TranscriptRef } from "./types";
+import { draftingModel, type NotesQuality } from "./estimate";
+import { learnVocabulary } from "@/lib/data/vocabulary";
 import type { DocumentLanguage, SourceRef } from "@/lib/db/schema";
 
 export const STAGES = {
@@ -198,6 +200,8 @@ export interface NotesParams {
   language: DocumentLanguage | "auto";
   includeAttachments: boolean;
   label?: string;
+  /** "economy" drafts and reviews with the fast model; the outline always uses the notes model. */
+  quality?: NotesQuality;
 }
 
 async function notesHandler(ctx: JobContext): Promise<Record<string, unknown>> {
@@ -216,6 +220,7 @@ async function notesHandler(ctx: JobContext): Promise<Record<string, unknown>> {
   const language = resolveLanguage(params.language ?? "auto", transcript.dominantLanguage);
   const dominant = transcript.dominantLanguage;
   const subjectLine = lecture.subjectName ? `Asignatura: ${lecture.subjectName}. ` : "";
+  const drafter = draftingModel(config.models, params.quality ?? "max");
 
   // Step 2 — per-block extraction (bounded concurrency; a 90-minute class has ~10 blocks).
   await ctx.setStage(`${STAGES.topics} (0/${transcript.blocks.length})`);
@@ -296,6 +301,7 @@ ${extractionDigest(extractions, transcript.blocks)}`,
           language,
           dominant,
           lecture,
+          model: drafter,
           extraInstructions: null,
         }),
       );
@@ -314,14 +320,14 @@ ${extractionDigest(extractions, transcript.blocks)}`,
       .map((s) => `${"#".repeat(s.level)} ${s.heading} (id: ${s.id})\n${drafts.get(s.id)?.markdown ?? ""}`)
       .join("\n\n");
     const { data, usage } = await createStructured<ReviewResult>(config, {
-      model: config.models.notes,
+      model: drafter,
       system: reviewSystem,
       user: `LISTA DE CONTROL (${checklist.length} elementos):\n${checklist.map((c) => `- ${c}`).join("\n")}\n\nBORRADOR:\n${draftText}`,
       schema: reviewSchema,
       reasoningEffort: "medium",
       maxOutputTokens: Math.min(12_000, 5000 + transcript.blocks.length * 400),
     });
-    await usageTotal(ctx, config.models.notes, usage);
+    await usageTotal(ctx, drafter, usage);
     return data;
   });
 
@@ -354,6 +360,7 @@ ${extractionDigest(extractions, transcript.blocks)}`,
         language,
         dominant,
         lecture,
+        model: drafter,
         extraInstructions: `Esta es una segunda redacción. El borrador anterior omitía o trataba mal los siguientes puntos, que DEBEN quedar cubiertos (solo si la transcripción los respalda):\n${items.map((i) => `- ${i}`).join("\n")}\n\nBORRADOR ANTERIOR:\n${drafts.get(sectionId)?.markdown ?? ""}`,
       }),
     );
@@ -378,7 +385,7 @@ ${extractionDigest(extractions, transcript.blocks)}`,
     sections,
     meta: {
       generatedAt: Date.now(),
-      model: config.models.notes,
+      model: drafter,
       uncovered,
       gaps: transcript.gaps,
       wordCount: sections.reduce((n, s) => n + countWords(s.markdown), 0),
@@ -399,6 +406,15 @@ ${extractionDigest(extractions, transcript.blocks)}`,
     await replaceNotesSources(ctx.db, ctx.job.userId, sessionId, content);
     return result;
   });
+  // The terms and norms of this class become transcription keywords for the
+  // lecture and its subject: the next class is transcribed knowing them.
+  const vocabulary = await ctx.step("vocabulary", () =>
+    learnVocabulary(ctx.db, ctx.job.userId, sessionId, [
+      ...extractions.flatMap((e) => e.definitions.map((d) => d.term)),
+      ...extractions.flatMap((e) => e.norms.map((n) => n.name)),
+      ...extractions.flatMap((e) => e.topics.map((t) => t.title)),
+    ]),
+  );
   await ctx.setStage(STAGES.done);
   return {
     documentId: saved.documentId,
@@ -407,6 +423,7 @@ ${extractionDigest(extractions, transcript.blocks)}`,
     words: content.meta.wordCount,
     uncovered: uncovered.length,
     reviewSummary: review.summary,
+    vocabulary,
   };
 }
 
@@ -460,6 +477,8 @@ async function draftSection(
     language: DocumentLanguage;
     dominant: "es" | "en";
     lecture: LectureContext;
+    /** Model that writes the section (notes model, or the fast model in economy mode). */
+    model: string;
     extraInstructions: string | null;
   },
 ): Promise<SectionDraft> {
@@ -505,14 +524,14 @@ PASAJES DE LA TRANSCRIPCIÓN (con marcadores para citar):
 ${excerpt || "(sin pasajes: indica que no hay material suficiente)"}
 ${slides ? `\nPÁGINAS DE LAS DIAPOSITIVAS RELACIONADAS:\n${slides}` : ""}`;
   const { data, usage } = await createStructured<SectionDraft>(config, {
-    model: config.models.notes,
+    model: input.model,
     system: sectionSystem(input.language, input.dominant),
     user,
     schema: sectionSchema,
     reasoningEffort: "low",
     maxOutputTokens: overviewOnly ? 1200 : 7000,
   });
-  await usageTotal(ctx, config.models.notes, usage);
+  await usageTotal(ctx, input.model, usage);
   return data;
 }
 
@@ -787,6 +806,7 @@ async function sectionHandler(ctx: JobContext): Promise<Record<string, unknown>>
       language,
       dominant: transcript.dominantLanguage,
       lecture,
+      model: config.models.notes,
       extraInstructions: [
         "Esta es una NUEVA redacción de una sección ya existente. Mejora el borrador anterior sin perder nada que la transcripción respalde y sin añadir nada que no respalde.",
         params.instructions?.trim()

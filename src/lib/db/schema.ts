@@ -35,6 +35,14 @@ export const profiles = sqliteTable("profiles", {
   transcriptionDelay: text("transcription_delay", {
     enum: ["minimal", "low", "medium", "high", "xhigh"],
   }).notNull(),
+  /** Live WebSocket transcription or per-turn HTTP transcription (cheaper). */
+  transcriptionMode: text("transcription_mode", { enum: ["realtime", "turns"] })
+    .notNull()
+    .default("realtime"),
+  /** Which models draft the notes: "max" = notes model everywhere, "economy" = fast model for drafts. */
+  notesQuality: text("notes_quality", { enum: ["max", "economy"] })
+    .notNull()
+    .default("max"),
   audioReviewEnabled: integer("audio_review_enabled", { mode: "boolean" }).notNull(),
   audioRetentionDays: integer("audio_retention_days"),
   monthlyBudgetUsd: real("monthly_budget_usd"),
@@ -86,6 +94,11 @@ export const lectureSessions = sqliteTable("lecture_sessions", {
   lastHeartbeatAt: integer("last_heartbeat_at"),
   audioMime: text("audio_mime"),
   transcriptionMode: text("transcription_mode", { enum: ["realtime", "turns"] }),
+  /** "live" = recorded in the browser; "import" = uploaded audio file. */
+  origin: text("origin", { enum: ["live", "import"] })
+    .notNull()
+    .default("live"),
+  sourceFileName: text("source_file_name"),
   keywords: text("keywords", { mode: "json" }).$type<string[]>().notNull(),
   languages: text("languages", { mode: "json" }).$type<string[]>().notNull(),
   failureReason: text("failure_reason"),

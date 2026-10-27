@@ -3,3 +3,4 @@
 import "@/lib/notes/pipeline";
 import "@/lib/study/flashcards-pipeline";
 import "@/lib/documents/pipeline";
+import "@/lib/transcription/import-pipeline";

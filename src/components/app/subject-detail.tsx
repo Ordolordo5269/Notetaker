@@ -3,9 +3,10 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Mic, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Mic, MoreHorizontal, Pencil, Trash2, Upload } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/app/app-shell";
 import { LectureCard, LectureCardSkeleton } from "@/components/app/lecture-card";
+import { ImportAudioDialog } from "@/components/app/import-audio-dialog";
 import { NewLectureDialog } from "@/components/app/new-lecture-dialog";
 import { SubjectDialog } from "@/components/app/subject-dialog";
 import { SubjectDot } from "@/components/app/subject-dot";
@@ -35,6 +36,7 @@ export function SubjectDetail({ id }: { id: string }) {
   const lectures = useLectures(id);
   const [editOpen, setEditOpen] = React.useState(false);
   const [newOpen, setNewOpen] = React.useState(false);
+  const [importOpen, setImportOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
 
   const remove = useMutation({
@@ -70,6 +72,9 @@ export function SubjectDetail({ id }: { id: string }) {
         description={subject.data?.description ?? undefined}
         actions={
           <>
+            <Button variant="secondary" onClick={() => setImportOpen(true)}>
+              <Upload /> Importar audio
+            </Button>
             <Button variant="primary" onClick={() => setNewOpen(true)}>
               <Mic /> Nueva clase
             </Button>
@@ -118,6 +123,7 @@ export function SubjectDetail({ id }: { id: string }) {
       )}
       {subject.data ? <SubjectDialog open={editOpen} onOpenChange={setEditOpen} initial={subject.data} /> : null}
       <NewLectureDialog open={newOpen} onOpenChange={setNewOpen} defaultSubjectId={id} />
+      <ImportAudioDialog open={importOpen} onOpenChange={setImportOpen} defaultSubjectId={id} />
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}

@@ -302,12 +302,17 @@ export class SessionController {
         await api(`/api/sessions/${this.sessionId}/status`, { body: { action: "recover" } });
         await api(`/api/sessions/${this.sessionId}/status`, { body: { action: "resume", durationMs: this.baseMs } });
       } else if (action) {
-        await api(`/api/sessions/${this.sessionId}/status`, {
-          body:
-            action === "start"
-              ? { action, transcriptionMode: "realtime", audioMime: mime }
-              : { action, durationMs: this.baseMs },
-        });
+        const { lecture } = await api<{ lecture: { transcriptionMode: "realtime" | "turns" | null } }>(
+          `/api/sessions/${this.sessionId}/status`,
+          {
+            // On "start" the server applies the transcription mode saved in Ajustes.
+            body: action === "start" ? { action, audioMime: mime } : { action, durationMs: this.baseMs },
+          },
+        );
+        if (action === "start" && lecture.transcriptionMode) {
+          this.local.transcriptionMode = lecture.transcriptionMode;
+          await localStore.putSession(this.local);
+        }
       }
       this.store.set((p) => ({ lecture: p.lecture ? { ...p.lecture, status: "recording" } : p.lecture }));
 

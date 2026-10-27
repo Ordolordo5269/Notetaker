@@ -88,20 +88,52 @@ Documento vivo. Cada fase indica qué se implementó, cómo se verificó y qué 
 - Service worker activo en la vista previa de workerd, página offline servida sin red, manifest válido.
 - Peso de cliente medido en la vista previa de producción: 0,7 MB de JS sin comprimir en panel y ajustes, 0,85 MB en grabación, 1,6 MB en la página de clase antes de diferir el editor.
 
-## Informe de entrega
+## Fase 6 — Producción en Cloudflare y control de coste
+
+### Implementado
+
+- Recursos reales en la cuenta de Cloudflare: D1 `studyflow` (migraciones aplicadas en remoto), R2 `studyflow-files`, Worker `studyflow` con Workflow `StudyJobWorkflow`, cron de retención, `observability` y límite de CPU de 5 minutos (plan Workers Paid). Despliegue automático en cada push a `main` con `.github/workflows/deploy.yml`, que aplica las migraciones pendientes, construye con OpenNext y sube el secreto `OPENAI_API_KEY`.
+- Correcciones salidas del primer uso real: un 401 de OpenAI (clave equivocada) se devuelve como `502 openai_auth` con el secreto a revisar en vez de expulsar al usuario de la grabación; «Finalizar» solo espera los fragmentos de audio de los que el navegador tiene datos (un fragmento abierto sin ningún trozo grabado ya no bloquea el cierre).
+- Dos palancas de coste en Ajustes, guardadas en el perfil (`migrations/0002_cost_preferences.sql`):
+  - **Modo de transcripción**: «En directo» (WebSocket, ≈ 1,02 $/h) o «Por turnos» (cada frase se envía al terminar, ≈ 0,27 $/h). Se aplica al empezar cada clase nueva; el servidor fija el modo en `start` y el cliente lo adopta.
+  - **Calidad de los apuntes**: «Máxima» (modelo principal en índice, redacción y revisión) o «Económica» (índice con el modelo principal; redacción, revisión y parches con el modelo rápido). La estimación previa, el presupuesto y la ficha del documento usan el modelo que redacta de verdad. La petición de apuntes puede fijar `quality` explícitamente; si no, se toma del perfil.
+  - Ajustes muestra el coste orientativo de una clase de dos horas con la combinación elegida (≈ 3,97 $ con todo al máximo, ≈ 0,78 $ con las dos opciones económicas).
+
+### Verificado
+
+- **Transcripción en directo en producción** (`gpt-live-transcribe` por WebSocket): confirmada con datos reales de la base D1 de producción (segmentos con origen `realtime` y consumo del modelo en directo). Gasto real acumulado en producción al cierre de esta fase: 0,057 $ (apuntes de una clase de 83 s: 0,042 $; 44 s de transcripción en directo: 0,0125 $; 22 s por turnos: 0,0016 $). El «0,21 $» que muestra la pantalla de apuntes para una clase de 4 minutos es el suelo de la estimación previa (mínimo de 8 secciones), no el gasto real.
+- Palancas de coste en navegador (Chromium, micrófono simulado): el cambio en Ajustes persiste tras recargar; con el perfil en «Por turnos» la grabación arranca en ese modo (sesión local y clase en servidor en `turns`, cero peticiones de credencial en directo, indicador «Transcripción por turnos»); un usuario con los valores por defecto sigue arrancando en directo. La estimación de apuntes sin `quality` coincide con la del perfil (económica 0,068 $ frente a 0,49 $ en máxima para la clase de 18 minutos).
+- Generación real de apuntes en modo económico sobre la clase de 18 minutos: véase la nota al final de esta sección.
+
+## Fase 8 — Importar audios, vocabulario que aprende y voz lejana
+
+Motivación: el alumno graba muchas clases con la app Notas de voz del iPhone (archivos `.m4a`, AAC mono a 64 kb/s, profesor a varios metros) y quiere apuntes de esas grabaciones y transcripciones lo más fieles posible. El modelo de transcripción no se puede «entrenar» con esos audios; lo que sí se puede es (1) usarlos, (2) darle al modelo el vocabulario de cada asignatura y (3) medir con grabaciones reales.
+
+### Implementado
+
+- **Importar audio** (panel y página de asignatura): el archivo se analiza y trocea en el navegador con ffmpeg.wasm (`public/ffmpeg`, build ESM de `@ffmpeg/ffmpeg` cargada fuera del empaquetador; núcleo de 32 MB desde jsDelivr, cacheado). Se decodifica una pista de volumen (mono, 4 kHz) y se corta en fragmentos de 18–42 s en el momento más silencioso de cada ventana (umbral relativo, así que una clase ruidosa también encuentra sus pausas), **sin recodificar** (AAC, MP3, Opus y PCM se copian; lo demás se convierte a AAC). Cada fragmento se mide con ffprobe para que los tiempos sean exactos, se sube por `PUT /chunks/{seq}` con SHA‑256 como en una grabación, la clase se finaliza y se encola el trabajo `recovery_transcription`, que transcribe fragmento a fragmento con el modelo de archivos (3 en paralelo, un paso reanudable por fragmento, consumo registrado) y, si se pidió, encadena los apuntes. La clase lleva `origin = import` y el nombre del archivo (`migrations/0003_imports.sql`); la página de la clase muestra el progreso y refresca la transcripción sola. Varios archivos se importan en cola; la pestaña avisa si se intenta cerrar durante la subida.
+- **Vocabulario que aprende** (`src/lib/data/vocabulary.ts`): al terminar los apuntes, los términos de las definiciones y los nombres de las normas extraídos por bloque pasan a `keywords` de la clase (≤ 40) y de la asignatura (≤ 60, los del alumno siempre primero, sin duplicados por mayúsculas o acentos). Esas palabras clave ya alimentaban la transcripción en directo y por turnos.
+- **Voz lejana**: la captura ya grababa sin cancelación de eco ni supresión de ruido del navegador y con control automático de ganancia, y la sesión en directo usa `noise_reduction: far_field`. Se mantiene; la palanca que de verdad cambia una grabación lejana es el vocabulario y, para clases ya grabadas, la importación del archivo del iPhone (que suele estar más cerca del profesor que el portátil).
+
+### Verificado
+
+- Grabación real del alumno (55 min, Notas de voz, nivel medio −27 dB, profesor lejos, clase bilingüe de Derecho Internacional Humanitario): dos tramos de 3 min transcritos con `gpt-transcribe` en 3,7 s y 4,5 s; texto fiel y en el idioma hablado, con los fallos típicos de lejanía que el vocabulario corrige («Genuine convention» por «Geneva Convention», «customer international» por «customary international law»). Solo se enviaron esos dos tramos; el archivo no se ha subido a ningún sitio.
+- ffmpeg nativo sobre ese archivo: detección de pausas en 11 s, troceado por copia en 3,4 s (110 fragmentos de ~250 KB); con el núcleo wasm en el navegador el coste es mayor pero del mismo orden de minutos para una clase de dos horas.
+- Prueba de extremo a extremo `tests/e2e/import.spec.ts` (Chromium, núcleo ffmpeg servido desde disco): el `.m4a` de 47 s se corta en 2 fragmentos contiguos `audio/mp4` sin recodificar, se suben con SHA‑256, la clase queda `ready` con origen `import` y duración exacta, los fragmentos se sirven íntegros, el trabajo de transcripción termina con 2 segmentos finales con texto (0,0036 $), la pestaña de transcripción se refresca sin recargar y el trabajo de apuntes se encadena solo (2 secciones, 0,021 $). Toda la prueba dura 16 s. La auditoría axe incluye ahora el diálogo de importación (17 pantallas, claro y oscuro, cero violaciones).
+- **Importación completa de la grabación real del alumno** (55 min, 28 MB) por el flujo de la aplicación en Chromium: análisis, troceado y subida de 109 fragmentos en 22 s en el navegador (cortes de 26–35 s, solo 1 de 107 en un múltiplo exacto de 30 s); transcripción en el servidor en 51 s, 107 fragmentos con texto y 2 en silencio, 3.500 palabras, 0,25 $; apuntes en modo económico encadenados solos: 25 secciones, 6.801 palabras, 0 puntos sin cubrir, 0,08 $, 3 minutos. Con el vocabulario de la asignatura los nombres salen bien («common Article 1 … the four Geneva Conventions»). Comparado con transcribir tramos de 3 min de una pieza, el troceado en pausas pierde poco (195–200 frente a 233 palabras en el primer tramo denso, 148 frente a 141 en otro). Límite honesto: las intervenciones de los alumnos, lejos del micrófono, a menudo no se oyen y el modelo las omite; eso no lo arregla ningún ajuste de la app.
+- Vocabulario aprendido, comprobado en la base local tras esos apuntes: la asignatura pasó de `["Brussels I bis"]` a añadir «Jurisdicción exclusiva», «Artículo 24», «Reglamento Bruselas I bis» y «Derecho internacional humanitario» (los del alumno siguen primero); la clase guarda los mismos cuatro términos. En la grabación real, la asignatura de Derecho Internacional Humanitario pasó de 6 términos a añadir «common Article 1/2/3 de los Convenios de Ginebra», «IACs», «NIACs», «Obligaciones erga omnes», «Artículo 38(1) del Estatuto de la CIJ», «Reglamentos de La Haya de 1899 y 1907»… (tope 60).
 
 ### Lo que funciona y se ha probado
 
 - Grabación robusta con guardado progresivo, recuperación y transcripción fiel en el idioma hablado (ruta por turnos verificada de extremo a extremo con audio sintético real en EN/ES/mezcla).
 - Apuntes multi‑etapa con trazabilidad al audio, resúmenes, examen interactivo, flashcards, chat con citas, documentos del profesor, editor con versiones, exportación PDF/DOCX/MD/TXT.
 - Aislamiento por usuario, almacenamiento privado, API key solo en servidor (el navegador recibe únicamente credenciales temporales `ek_…`), registro de consumo con estimación previa y límites.
-- Build de producción y ejecución en workerd con Workflows.
+- Build de producción y ejecución en workerd con Workflows; desplegado en Cloudflare (`https://studyflow.lucasgilgon.workers.dev`) con transcripción en directo confirmada en producción.
+- Control del gasto: estimación previa, límites mensual y por tarea, y dos palancas en Ajustes (transcripción por turnos, apuntes en modo económico) que dejan una clase de dos horas en torno a 0,8 $ en vez de 4 $.
 
 ### Lo que requiere credenciales o entorno real para confirmarlo
 
-- **Transcripción en directo por WebSocket** (`gpt-live-transcribe`): el entorno donde se construyó el proyecto bloquea los upgrades de WebSocket (405), así que la conexión real desde el navegador no pudo ejecutarse. El cliente sigue la documentación oficial (se verificó la emisión de credenciales temporales con los parámetros exactos) y, si falla, cae sin intervención a la transcripción por turnos, que sí está verificada. Primera prueba manual recomendada: una clase corta mirando el indicador «En directo».
 - **Safari e iOS**: la lógica tiene en cuenta `audio/mp4` y la rotación de 30 s, pero solo se ha probado en Chromium. Comprobar en iPhone el comportamiento con pantalla bloqueada.
-- **Despliegue real en Cloudflare** (cuenta, `database_id`, secretos, plan Paid para Workflows y CPU extendida): no se ha podido ejecutar desde aquí; `docs/DEPLOY.md` detalla los pasos y la verificación previa.
 - **Clase de 90 minutos con audio real**: el pipeline se probó de extremo a extremo con una transcripción sintética de 88 minutos (1,88 $ de apuntes); falta comprobar la grabación continua de 90 minutos con micrófono real (rotación de fragmentos, memoria del navegador, subida en segundo plano).
 
 ### Limitaciones conocidas

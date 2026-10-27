@@ -7,6 +7,9 @@ const Create = z.object({
   title: z.string().trim().min(1).max(200),
   subjectId: z.string().uuid().nullish(),
   keywords: z.array(z.string().max(200)).max(100).optional(),
+  // Imported audio file (the browser cuts it into chunks and uploads them like a recording).
+  origin: z.enum(["live", "import"]).optional(),
+  sourceFileName: z.string().trim().min(1).max(255).optional(),
 });
 
 export const GET = authedRoute(async ({ db, user, req }) => {

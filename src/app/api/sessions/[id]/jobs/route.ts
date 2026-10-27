@@ -4,7 +4,7 @@ import { getLectureRow } from "@/lib/data/lectures";
 import { hasUserEdits } from "@/lib/data/documents";
 import { assertBudget } from "@/lib/cost/usage";
 import { enqueueJob, listJobs } from "@/lib/jobs/queue";
-import { dedupeKeyFor, estimateJob, jobRequestSchema, paramsFor } from "@/lib/jobs/requests";
+import { dedupeKeyFor, estimateJob, jobRequestSchema, paramsFor, withProfileDefaults } from "@/lib/jobs/requests";
 import { conflict } from "@/lib/errors";
 
 export const GET = authedRoute<{ id: string }>(async ({ db, user, params }) => {
@@ -14,7 +14,7 @@ export const GET = authedRoute<{ id: string }>(async ({ db, user, params }) => {
 
 /** Launch a processing job for this lecture (notes, summaries, exam, flashcards). */
 export const POST = authedRoute<{ id: string }>(async ({ db, env, user, params, req, config }) => {
-  const body = await readJson(req, jobRequestSchema);
+  const body = await withProfileDefaults(db, user.id, await readJson(req, jobRequestSchema));
   const lecture = await getLectureRow(db, user.id, params.id);
   if (lecture.status !== "ready") throw conflict("La clase todavía no ha terminado de grabarse.");
   const confirmOverwrite = (req.nextUrl.searchParams.get("confirmOverwrite") ?? "") === "1";
