@@ -11,7 +11,7 @@
 // /public/ffmpeg and loaded at runtime, outside the bundler: its web worker is
 // resolved relative to its own URL. The 32 MB core comes from the CDN once.
 import { api, ApiError } from "@/lib/api/client";
-import { parseSilences, pickOutput, planSegments } from "./plan";
+import { energyProfile, pickOutput, planSegments } from "./plan";
 export { titleFromFileName } from "./plan";
 
 /** ffmpeg.wasm core, loaded once from the CDN (≈ 32 MB, cached by the browser afterwards). */
@@ -20,6 +20,8 @@ const CORE_BASE = `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${FFMPEG_CORE_VERSI
 const FFMPEG_MODULE_PATH = "/ffmpeg/index.js";
 export const MAX_IMPORT_SECONDS = 4 * 3600;
 export const MAX_IMPORT_BYTES = 1024 * 1024 * 1024;
+/** Sample rate of the loudness profile used to place the cuts (2 bytes per sample: a 2-hour file is 58 MB). */
+const PROFILE_RATE = 4000;
 
 /** The subset of @ffmpeg/ffmpeg's FFmpeg class this module uses. */
 interface FFmpeg {
@@ -192,16 +194,12 @@ export async function importAudioFile(input: {
     const out = pickOutput(info.codec);
     throwIfAborted(signal);
 
-    // Pauses, so chunks end between sentences rather than mid-word.
+    // Loudness profile (mono, 4 kHz PCM), so chunks end in pauses rather than mid-word.
     onProgress({ phase: "analyzing", ratio: 0, detail: null });
-    const logLines: string[] = [];
-    const onLog = ({ message }: { message: string }) => {
-      if (message.includes("silence_")) logLines.push(message);
-    };
     const onAnalyzeProgress = ({ progress }: { progress: number }) =>
       onProgress({ phase: "analyzing", ratio: Math.min(1, Math.max(0, progress)), detail: null });
-    ffmpeg.on("log", onLog);
     ffmpeg.on("progress", onAnalyzeProgress);
+    let plan;
     try {
       await ffmpeg.exec([
         "-hide_banner",
@@ -209,18 +207,25 @@ export async function importAudioFile(input: {
         "-i",
         inName,
         "-vn",
-        "-af",
-        "silencedetect=noise=-30dB:d=0.35",
+        "-ac",
+        "1",
+        "-ar",
+        String(PROFILE_RATE),
         "-f",
-        "null",
-        "-",
+        "s16le",
+        "profile.pcm",
       ]);
+      const raw = await ffmpeg.readFile("profile.pcm");
+      await ffmpeg.deleteFile("profile.pcm").catch(() => undefined);
+      const pcm =
+        typeof raw === "string"
+          ? new Int16Array()
+          : new Int16Array(raw.buffer, raw.byteOffset, Math.floor(raw.byteLength / 2));
+      plan = planSegments(info.duration, pcm.length ? energyProfile(pcm, PROFILE_RATE) : null);
     } finally {
-      ffmpeg.off("log", onLog);
       ffmpeg.off("progress", onAnalyzeProgress);
     }
     throwIfAborted(signal);
-    const plan = planSegments(info.duration, parseSilences(logLines.join("\n")));
 
     const cutDetail = out.copy ? null : "Convirtiendo a AAC";
     onProgress({ phase: "cutting", ratio: 0, detail: cutDetail });

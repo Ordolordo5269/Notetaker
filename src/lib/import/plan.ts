@@ -2,10 +2,11 @@
 // chunks and which container to write. No browser or ffmpeg dependency, so
 // they are unit-tested directly.
 
-export interface Silence {
-  /** Seconds from the start of the file. */
-  start: number;
-  end: number;
+/** Smoothed loudness per fixed-length frame, from the start of the file. */
+export interface QuietProfile {
+  frameMs: number;
+  /** One value per frame, larger = louder. Any scale. */
+  energy: ArrayLike<number>;
 }
 
 export interface PlannedSegment {
@@ -25,15 +26,57 @@ export interface PlanOptions {
 }
 
 /**
- * Chunk boundaries for a file of `duration` seconds. Each chunk ends in the
- * longest pause found between `min` and `max` seconds after it starts (ties go
- * to the pause closest to `target`); without a pause it ends at `target`.
+ * Loudness profile of mono PCM16 audio: RMS per `frameMs` frame, then a centred
+ * moving average over `smoothMs` so a single quiet frame between two syllables
+ * does not look like a pause. Relative values only; the noise floor of a noisy
+ * classroom simply becomes the quietest level.
+ */
+export function energyProfile(
+  samples: ArrayLike<number>,
+  sampleRate: number,
+  frameMs = 20,
+  smoothMs = 300,
+): QuietProfile {
+  const frameLen = Math.max(1, Math.round((sampleRate * frameMs) / 1000));
+  const frames = Math.floor(samples.length / frameLen);
+  const rms = new Float32Array(frames);
+  for (let f = 0; f < frames; f++) {
+    let acc = 0;
+    const base = f * frameLen;
+    for (let i = 0; i < frameLen; i++) {
+      const v = samples[base + i]! / 32768;
+      acc += v * v;
+    }
+    rms[f] = Math.sqrt(acc / frameLen);
+  }
+  const half = Math.max(0, Math.round(smoothMs / frameMs / 2));
+  const energy = new Float32Array(frames);
+  let window = 0;
+  // Sliding window sum over [f - half, f + half].
+  for (let f = 0; f < Math.min(frames, half + 1); f++) window += rms[f]!;
+  for (let f = 0; f < frames; f++) {
+    const lo = f - half;
+    const hi = f + half;
+    if (f > 0) {
+      if (hi < frames) window += rms[hi]!;
+      if (lo - 1 >= 0) window -= rms[lo - 1]!;
+    }
+    const count = Math.min(frames - 1, hi) - Math.max(0, lo) + 1;
+    energy[f] = window / count;
+  }
+  return { frameMs, energy };
+}
+
+/**
+ * Chunk boundaries for a file of `duration` seconds. Each chunk ends at the
+ * quietest moment found between `min` and `max` seconds after it starts (a mild
+ * pull towards `target` breaks ties); without a profile it ends at `target`.
  * Chunks never overlap, so the transcript has no duplicated text, and they
  * stay short enough for the file transcription model and for seeking.
  */
 export function planSegments(
   duration: number,
-  silences: readonly Silence[],
+  profile: QuietProfile | null,
   options: PlanOptions = {},
 ): PlannedSegment[] {
   const target = options.target ?? 30;
@@ -41,25 +84,11 @@ export function planSegments(
   const max = options.max ?? 42;
   const mergeTail = options.mergeTail ?? 6;
   if (!(duration > 0)) return [];
-  const sorted = [...silences].filter((s) => s.end > s.start).sort((a, b) => a.start - b.start);
   const out: PlannedSegment[] = [];
   let start = 0;
   while (duration - start > max) {
-    const lo = start + min;
-    const hi = start + max;
-    let best: { at: number; score: number } | null = null;
-    for (const s of sorted) {
-      const mid = (s.start + s.end) / 2;
-      if (mid < lo) continue;
-      if (mid > hi) break;
-      const length = s.end - s.start;
-      // Longer pauses win; among similar pauses prefer the one nearest the target length.
-      const score = length * 10 - Math.abs(mid - (start + target)) * 0.1;
-      if (!best || score > best.score) best = { at: mid, score };
-    }
-    const end = best ? best.at : start + target;
-    out.push({ start, end });
-    start = end;
+    out.push({ start, end: quietestBetween(profile, start + min, start + max, start + target) });
+    start = out[out.length - 1]!.end;
   }
   if (duration - start < mergeTail && out.length) {
     out[out.length - 1] = { start: out[out.length - 1]!.start, end: duration };
@@ -69,27 +98,32 @@ export function planSegments(
   return out.map((s) => ({ start: round3(s.start), end: round3(s.end) }));
 }
 
-function round3(n: number): number {
-  return Math.round(n * 1000) / 1000;
-}
-
-/** Parses ffmpeg's `silencedetect` log lines into pauses. */
-export function parseSilences(log: string): Silence[] {
-  const out: Silence[] = [];
-  let pendingStart: number | null = null;
-  for (const line of log.split(/\r?\n/)) {
-    const start = /silence_start:\s*(-?[\d.]+)/.exec(line);
-    if (start) {
-      pendingStart = Number(start[1]);
-      continue;
-    }
-    const end = /silence_end:\s*(-?[\d.]+)/.exec(line);
-    if (end && pendingStart !== null) {
-      out.push({ start: Math.max(0, pendingStart), end: Number(end[1]) });
-      pendingStart = null;
+function quietestBetween(profile: QuietProfile | null, lo: number, hi: number, preferred: number): number {
+  if (!profile || !profile.energy.length) return preferred;
+  const { frameMs, energy } = profile;
+  const first = Math.max(0, Math.ceil((lo * 1000) / frameMs));
+  const last = Math.min(energy.length - 1, Math.floor((hi * 1000) / frameMs));
+  if (first > last) return preferred;
+  let maxE = 0;
+  for (let f = first; f <= last; f++) maxE = Math.max(maxE, energy[f]!);
+  if (maxE <= 0) return preferred;
+  let best = -1;
+  let bestScore = Infinity;
+  for (let f = first; f <= last; f++) {
+    const t = (f * frameMs) / 1000;
+    // Quietness dominates; distance from the preferred length only breaks near-ties.
+    const score = energy[f]! / maxE + 0.25 * (Math.abs(t - preferred) / Math.max(1e-6, hi - lo));
+    if (score < bestScore) {
+      bestScore = score;
+      best = f;
     }
   }
-  return out;
+  // Cut in the middle of the quiet frame.
+  return best < 0 ? preferred : ((best + 0.5) * frameMs) / 1000;
+}
+
+function round3(n: number): number {
+  return Math.round(n * 1000) / 1000;
 }
 
 export interface OutputPlan {

@@ -53,21 +53,34 @@ test.describe("import an audio file", () => {
     const lectureId = href!.split("/").pop()!;
 
     // Server state: imported lecture, two non-overlapping chunks covering the 47 s file, ready.
-    const lecture = ((await (await page.request.get(`/api/sessions/${lectureId}`)).json()) as {
-      lecture: { status: string; origin: string; sourceFileName: string | null; durationMs: number; transcriptionMode: string };
-    }).lecture;
+    const lecture = (
+      (await (await page.request.get(`/api/sessions/${lectureId}`)).json()) as {
+        lecture: {
+          status: string;
+          origin: string;
+          sourceFileName: string | null;
+          durationMs: number;
+          transcriptionMode: string;
+        };
+      }
+    ).lecture;
     expect(lecture.status).toBe("ready");
     expect(lecture.origin).toBe("import");
     expect(lecture.sourceFileName).toBe("lecture-es-en.m4a");
     expect(lecture.transcriptionMode).toBe("turns");
     expect(lecture.durationMs).toBeGreaterThan(46_000);
     expect(lecture.durationMs).toBeLessThan(48_500);
-    const chunks = ((await (await page.request.get(`/api/sessions/${lectureId}/chunks`)).json()) as {
-      chunks: { seq: number; startMs: number; endMs: number; mimeType: string; sizeBytes: number }[];
-    }).chunks;
+    const chunks = (
+      (await (await page.request.get(`/api/sessions/${lectureId}/chunks`)).json()) as {
+        chunks: { seq: number; startMs: number; endMs: number; mimeType: string; sizeBytes: number }[];
+      }
+    ).chunks;
     expect(chunks.length).toBe(2);
     expect(chunks[0]!.startMs).toBe(0);
     expect(chunks[1]!.startMs).toBe(chunks[0]!.endMs);
+    // The cut lands inside the planning window (the quietest moment between 18 s and 42 s).
+    expect(chunks[0]!.endMs).toBeGreaterThanOrEqual(18_000);
+    expect(chunks[0]!.endMs).toBeLessThanOrEqual(42_000);
     expect(chunks[1]!.endMs).toBe(lecture.durationMs);
     for (const c of chunks) {
       expect(c.mimeType).toBe("audio/mp4");
@@ -80,9 +93,11 @@ test.describe("import an audio file", () => {
       expect(Number(res.headers()["content-length"])).toBe(c.sizeBytes);
     }
 
-    const jobs = ((await (await page.request.get(`/api/sessions/${lectureId}/jobs`)).json()) as {
-      jobs: { jobType: string; status: string; params: Record<string, unknown> }[];
-    }).jobs;
+    const jobs = (
+      (await (await page.request.get(`/api/sessions/${lectureId}/jobs`)).json()) as {
+        jobs: { jobType: string; status: string; params: Record<string, unknown> }[];
+      }
+    ).jobs;
     const transcription = jobs.find((j) => j.jobType === "recovery_transcription");
     const configured = ((await (await page.request.get("/api/profile")).json()) as { openaiConfigured: boolean })
       .openaiConfigured;
@@ -108,15 +123,19 @@ test.describe("import an audio file", () => {
         { timeout: 4 * 60_000, intervals: [3000] },
       )
       .toMatch(/completed|failed/);
-    const finalJobs = ((await (await page.request.get(`/api/sessions/${lectureId}/jobs`)).json()) as {
-      jobs: { jobType: string; status: string; error: string | null; result: Record<string, unknown> | null }[];
-    }).jobs;
+    const finalJobs = (
+      (await (await page.request.get(`/api/sessions/${lectureId}/jobs`)).json()) as {
+        jobs: { jobType: string; status: string; error: string | null; result: Record<string, unknown> | null }[];
+      }
+    ).jobs;
     const finished = finalJobs.find((j) => j.jobType === "recovery_transcription")!;
     expect(finished.status, finished.error ?? "").toBe("completed");
     expect(finished.result?.chunks).toBe(2);
-    const segments = ((await (await page.request.get(`/api/sessions/${lectureId}/segments`)).json()) as {
-      segments: { seq: number; text: string; source: string; startMs: number; endMs: number; status: string }[];
-    }).segments;
+    const segments = (
+      (await (await page.request.get(`/api/sessions/${lectureId}/segments`)).json()) as {
+        segments: { seq: number; text: string; source: string; startMs: number; endMs: number; status: string }[];
+      }
+    ).segments;
     expect(segments.length).toBe(2);
     expect(segments.map((s) => s.seq)).toEqual([0, 1]);
     for (const s of segments) {
