@@ -94,6 +94,11 @@ export const lectureSessions = sqliteTable("lecture_sessions", {
   lastHeartbeatAt: integer("last_heartbeat_at"),
   audioMime: text("audio_mime"),
   transcriptionMode: text("transcription_mode", { enum: ["realtime", "turns"] }),
+  /** "live" = recorded in the browser; "import" = uploaded audio file. */
+  origin: text("origin", { enum: ["live", "import"] })
+    .notNull()
+    .default("live"),
+  sourceFileName: text("source_file_name"),
   keywords: text("keywords", { mode: "json" }).$type<string[]>().notNull(),
   languages: text("languages", { mode: "json" }).$type<string[]>().notNull(),
   failureReason: text("failure_reason"),

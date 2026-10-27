@@ -95,5 +95,5 @@ export const JOB_LABEL: Record<JobType, string> = {
   attachment: "Procesado de documento",
   index: "Índice de búsqueda",
   section: "Sección de apuntes",
-  recovery_transcription: "Transcripción de recuperación",
+  recovery_transcription: "Transcripción del audio",
 };

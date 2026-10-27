@@ -15,6 +15,8 @@ import {
   type CostEstimate,
 } from "@/lib/notes/estimate";
 import { documentPlainText } from "@/lib/notes/types";
+import { audioCost } from "@/lib/cost/pricing";
+import { storedAudioSeconds } from "@/lib/transcription/stored-audio";
 
 const language = z.enum(["auto", "es", "en", "bilingual"]).default("auto");
 
@@ -56,6 +58,12 @@ export const jobRequestSchema = z.discriminatedUnion("type", [
     type: z.literal("section"),
     sectionId: z.string().min(1).max(80),
     instructions: z.string().max(600).optional(),
+    language,
+  }),
+  // Transcribe the stored audio chunks with the file model (imported audio files).
+  z.object({
+    type: z.literal("recovery_transcription"),
+    thenNotes: z.boolean().default(false),
     language,
   }),
 ]);
@@ -115,6 +123,34 @@ export async function estimateJob(
     case "flashcards":
       if (!transcript.blocks.length) throw badRequest("La clase no tiene transcripción suficiente.");
       return { ...estimateFlashcardsCost(config.models, notesChars), ...base };
+    case "recovery_transcription": {
+      const stored = await storedAudioSeconds(db, userId, sessionId);
+      if (!stored.chunks) throw badRequest("La clase no tiene audio almacenado que transcribir.");
+      const minutes = stored.seconds / 60;
+      const transcription = audioCost(config.models.file, stored.seconds);
+      const breakdown = [
+        { label: `Transcripción de ${Math.max(1, Math.round(minutes))} min de audio`, usd: transcription },
+      ];
+      if (req.thenNotes) {
+        // The transcript does not exist yet: size the notes from the audio length
+        // (≈ 920 transcript characters and one block per ~5.5 minutes of class).
+        const profile = await getProfile(db, userId);
+        const notesEstimate = estimateNotesCost(
+          config.models,
+          Math.round(minutes * 920),
+          0,
+          Math.max(1, Math.round(minutes / 5.5)),
+          profile.notesQuality,
+        );
+        breakdown.push({ label: "Apuntes completos al terminar (estimación)", usd: notesEstimate.usd });
+      }
+      return {
+        usd: breakdown.reduce((n, b) => n + b.usd, 0),
+        breakdown,
+        transcriptTokens: 0,
+        ...base,
+      };
+    }
     case "section": {
       if (!notes) throw badRequest("No hay apuntes que regenerar.");
       const section = notes.content.sections.find((s) => s.id === req.sectionId);

@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     ".open-next/**",
     ".wrangler/**",
+    // Copied unmodified from @ffmpeg/ffmpeg (see public/ffmpeg/LICENSE).
+    "public/ffmpeg/**",
     "cloudflare-env.d.ts",
     "public/worklets/**",
     "test-results/**",

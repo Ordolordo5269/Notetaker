@@ -32,6 +32,8 @@ export interface LectureCard {
   lastHeartbeatAt: number | null;
   languages: string[];
   transcriptionMode: string | null;
+  origin: "live" | "import";
+  sourceFileName: string | null;
   hasNotes: boolean;
   importantCount: number;
   examCount: number;
@@ -53,6 +55,8 @@ const cardColumns = (userId: string) => ({
   lastHeartbeatAt: lectureSessions.lastHeartbeatAt,
   languages: lectureSessions.languages,
   transcriptionMode: lectureSessions.transcriptionMode,
+  origin: lectureSessions.origin,
+  sourceFileName: lectureSessions.sourceFileName,
   hasNotes: sql<number>`EXISTS (SELECT 1 FROM study_documents d WHERE d.session_id = ${lectureSessions.id} AND d.kind = 'notes' AND d.user_id = ${userId} AND d.current_version_id IS NOT NULL)`,
   importantCount: sql<number>`(SELECT count(*) FROM lecture_markers m WHERE m.session_id = ${lectureSessions.id} AND m.type = 'important')`,
   examCount: sql<number>`(SELECT count(*) FROM lecture_markers m WHERE m.session_id = ${lectureSessions.id} AND m.type = 'exam')`,
@@ -117,7 +121,13 @@ async function assertSubjectOwned(db: Db, userId: string, subjectId: string | nu
 export async function createLecture(
   db: Db,
   userId: string,
-  input: { title: string; subjectId?: string | null; keywords?: string[] },
+  input: {
+    title: string;
+    subjectId?: string | null;
+    keywords?: string[];
+    origin?: "live" | "import";
+    sourceFileName?: string | null;
+  },
 ) {
   await assertSubjectOwned(db, userId, input.subjectId);
   const id = newId();
@@ -130,6 +140,8 @@ export async function createLecture(
     status: "created",
     processingStatus: "idle",
     durationMs: 0,
+    origin: input.origin ?? "live",
+    sourceFileName: input.origin === "import" ? input.sourceFileName?.trim().slice(0, 255) || null : null,
     keywords: input.keywords ?? [],
     languages: [],
     createdAt: now,

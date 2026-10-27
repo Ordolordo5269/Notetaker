@@ -15,6 +15,7 @@ import {
   Star,
   Trash2,
   X,
+  Upload,
 } from "lucide-react";
 import { PageContainer } from "@/components/app/app-shell";
 import { SubjectDot } from "@/components/app/subject-dot";
@@ -23,6 +24,7 @@ import { ConfirmDialog, Dialog, DialogContent, DialogFooter } from "@/components
 import { Input, Label, NativeSelect } from "@/components/ui/input";
 import { Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from "@/components/ui/menu";
 import { Badge, Callout, EmptyState, Skeleton } from "@/components/ui/misc";
+import { activeJob, JobFailure, JobProgress, latestJob, useJobs } from "@/components/lecture/job-progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip } from "@/components/ui/tooltip";
 import { TranscriptView, LanguageChip } from "@/components/recording/transcript-view";
@@ -108,6 +110,19 @@ export function LecturePage({ id }: { id: string }) {
     queryKey: qk.chunks(id),
     queryFn: async () => (await api<{ chunks: ChunkMeta[] }>(`/api/sessions/${id}/chunks`)).chunks,
   });
+  // Imported audio: the transcript appears when the server job finishes.
+  const jobs = useJobs(id);
+  const transcribing = activeJob(jobs.data, "recovery_transcription");
+  const lastTranscription = latestJob(jobs.data, "recovery_transcription");
+  const lastTranscriptionStatus = lastTranscription?.status ?? null;
+  const previousStatus = React.useRef(lastTranscriptionStatus);
+  React.useEffect(() => {
+    if (previousStatus.current !== lastTranscriptionStatus && lastTranscriptionStatus === "completed") {
+      void qc.invalidateQueries({ queryKey: qk.segments(id) });
+      void qc.invalidateQueries({ queryKey: qk.lecture(id) });
+    }
+    previousStatus.current = lastTranscriptionStatus;
+  }, [lastTranscriptionStatus, id, qc]);
   const playerRef = React.useRef<PlayerHandle>(null);
   const [activeMs, setActiveMs] = React.useState(0);
   const [tab, setTab] = React.useState(params.get("tab") ?? "transcript");
@@ -197,7 +212,19 @@ export function LecturePage({ id }: { id: string }) {
                     {l.languages.map((x) => x.toUpperCase()).join(" · ")}
                   </span>
                 ) : null}
-                {l.transcriptionMode === "turns" ? (
+                {l.origin === "import" ? (
+                  <Tooltip
+                    content={
+                      l.sourceFileName
+                        ? `Importada del archivo ${l.sourceFileName}`
+                        : "Importada de un archivo de audio"
+                    }
+                  >
+                    <span className="inline-flex items-center gap-1">
+                      <Upload className="size-3.5" /> importada
+                    </span>
+                  </Tooltip>
+                ) : l.transcriptionMode === "turns" ? (
                   <Tooltip content="La transcripción se hizo por turnos (sin conexión en directo).">
                     <span className="inline-flex items-center gap-1">
                       <Mic className="size-3.5" /> por turnos
@@ -231,6 +258,15 @@ export function LecturePage({ id }: { id: string }) {
           <Callout tone="warning" icon={<AlertTriangle />} className="mt-4">
             {l.failureReason}
           </Callout>
+        ) : null}
+        {transcribing ? (
+          <div className="mt-4" data-testid="import-transcribing">
+            <JobProgress job={transcribing} sessionId={id} />
+          </div>
+        ) : lastTranscription && (lastTranscription.status === "failed" || lastTranscription.status === "cancelled") ? (
+          <div className="mt-4">
+            <JobFailure job={lastTranscription} sessionId={id} />
+          </div>
         ) : null}
         <div className="mt-4">
           {chunks.data ? (

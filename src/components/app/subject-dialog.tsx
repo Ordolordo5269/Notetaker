@@ -130,7 +130,11 @@ function SubjectForm({
           defaultValue={initial?.keywords.join(", ")}
           placeholder="Brussels I bis Regulation, Rome I Regulation, Reglamento Bruselas I bis, forum non conveniens"
         />
-        <FieldHint>Separadas por comas. Nombres de normas, autores, siglas.</FieldHint>
+        <FieldHint>
+          Separadas por comas. Nombres de normas, autores, siglas. Cada vez que se generan apuntes, los términos de la
+          clase se añaden aquí automáticamente (hasta 60) para que las siguientes transcripciones los reconozcan; puedes
+          borrar los que no quieras.
+        </FieldHint>
       </div>
       <div>
         <Label htmlFor="subject-description">Descripción (opcional)</Label>

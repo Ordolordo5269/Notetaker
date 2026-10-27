@@ -55,6 +55,14 @@ for (const scheme of ["light", "dark"] as const) {
         await page.waitForSelector("main");
         await expectAccessible(page, name);
       }
+      // Import dialog with a file selected (title field, list and footer rendered).
+      await page.goto("/");
+      await page.getByRole("button", { name: "Importar audio" }).click();
+      await page.getByTestId("import-file-input").setInputFiles(fixturePath("lecture-es-en.m4a"));
+      await expect(page.getByTestId("import-item")).toHaveCount(1);
+      await expectAccessible(page, "import dialog");
+      await page.keyboard.press("Escape");
+
       for (const tab of ["transcript", "notes", "summary", "exam", "flashcards", "chat", "documents"]) {
         await page.goto(`/lectures/${lectureId}?tab=${tab}`);
         await page.waitForSelector("main");

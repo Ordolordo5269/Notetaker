@@ -54,6 +54,7 @@ import {
 } from "./transcript";
 import { countWords, type DocumentSection, type StudyDocumentContent, type TranscriptRef } from "./types";
 import { draftingModel, type NotesQuality } from "./estimate";
+import { learnVocabulary } from "@/lib/data/vocabulary";
 import type { DocumentLanguage, SourceRef } from "@/lib/db/schema";
 
 export const STAGES = {
@@ -405,6 +406,15 @@ ${extractionDigest(extractions, transcript.blocks)}`,
     await replaceNotesSources(ctx.db, ctx.job.userId, sessionId, content);
     return result;
   });
+  // The terms and norms of this class become transcription keywords for the
+  // lecture and its subject: the next class is transcribed knowing them.
+  const vocabulary = await ctx.step("vocabulary", () =>
+    learnVocabulary(ctx.db, ctx.job.userId, sessionId, [
+      ...extractions.flatMap((e) => e.definitions.map((d) => d.term)),
+      ...extractions.flatMap((e) => e.norms.map((n) => n.name)),
+      ...extractions.flatMap((e) => e.topics.map((t) => t.title)),
+    ]),
+  );
   await ctx.setStage(STAGES.done);
   return {
     documentId: saved.documentId,
@@ -413,6 +423,7 @@ ${extractionDigest(extractions, transcript.blocks)}`,
     words: content.meta.wordCount,
     uncovered: uncovered.length,
     reviewSummary: review.summary,
+    vocabulary,
   };
 }
 

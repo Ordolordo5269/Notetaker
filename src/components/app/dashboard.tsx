@@ -1,9 +1,10 @@
 "use client";
 import * as React from "react";
 import Link from "next/link";
-import { ArrowRight, BookOpen, Mic, Plus, RotateCcw, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, Mic, Plus, RotateCcw, Sparkles, Upload } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/app/app-shell";
 import { LectureCard, LectureCardSkeleton } from "@/components/app/lecture-card";
+import { ImportAudioDialog } from "@/components/app/import-audio-dialog";
 import { NewLectureDialog } from "@/components/app/new-lecture-dialog";
 import { SubjectDialog } from "@/components/app/subject-dialog";
 import { SubjectDot } from "@/components/app/subject-dot";
@@ -15,6 +16,7 @@ import { formatRelative } from "@/lib/time";
 export function Dashboard({ displayName }: { displayName: string | null }) {
   const { data, isPending, error } = useDashboard();
   const [newOpen, setNewOpen] = React.useState(false);
+  const [importOpen, setImportOpen] = React.useState(false);
   const [subjectOpen, setSubjectOpen] = React.useState(false);
   const hour = new Date().getHours();
   const greeting = hour < 13 ? "Buenos días" : hour < 20 ? "Buenas tardes" : "Buenas noches";
@@ -25,10 +27,16 @@ export function Dashboard({ displayName }: { displayName: string | null }) {
         title={displayName ? `${greeting}, ${displayName.split(" ")[0]}` : greeting}
         description="Graba la clase y deja que StudyFlow escriba por ti."
         actions={
-          <Button variant="primary" size="lg" onClick={() => setNewOpen(true)}>
-            <Mic />
-            Nueva grabación
-          </Button>
+          <>
+            <Button variant="secondary" size="lg" onClick={() => setImportOpen(true)}>
+              <Upload />
+              Importar audio
+            </Button>
+            <Button variant="primary" size="lg" onClick={() => setNewOpen(true)}>
+              <Mic />
+              Nueva grabación
+            </Button>
+          </>
         }
       />
 
@@ -174,6 +182,7 @@ export function Dashboard({ displayName }: { displayName: string | null }) {
       </div>
 
       <NewLectureDialog open={newOpen} onOpenChange={setNewOpen} />
+      <ImportAudioDialog open={importOpen} onOpenChange={setImportOpen} />
       <SubjectDialog open={subjectOpen} onOpenChange={setSubjectOpen} />
     </PageContainer>
   );

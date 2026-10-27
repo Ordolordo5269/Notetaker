@@ -44,7 +44,7 @@ jobs:
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium
       - name: End-to-end tests without AI cost (documents, security, accessibility)
-        run: npx playwright test tests/e2e/documents.spec.ts tests/e2e/security.spec.ts tests/e2e/a11y.spec.ts
+        run: npx playwright test tests/e2e/documents.spec.ts tests/e2e/security.spec.ts tests/e2e/a11y.spec.ts tests/e2e/import.spec.ts
       - name: End-to-end recording test (real transcription API)
         if: env.HAS_OPENAI == 'true'
         run: npx playwright test tests/e2e/recording.spec.ts
